@@ -60,53 +60,23 @@
             height: 100%;
             position: relative;
             transform-style: preserve-3d;
-            transition: transform 0.2s ease;
         }
         
         /* Individual cubies - 3D cubes */
         .cubie {
             position: absolute;
-            width: 30%;
-            height: 30%;
+            width: 33.333%;
+            height: 33.333%;
             transform-style: preserve-3d;
-            transition: transform 0.3s ease;
         }
         
         .cubie .side {
             position: absolute;
             width: 100%;
             height: 100%;
-            border: 1px solid rgba(0,0,0,0.3);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            font-size: 14px;
-            font-weight: bold;
-            color: rgba(255,255,255,0.3);
-            background: linear-gradient(145deg, rgba(255,255,255,0.2) 0%, rgba(0,0,0,0.1) 100%);
-            box-shadow: inset 0 1px 3px rgba(255,255,255,0.3), 
-                        inset 0 -1px 3px rgba(0,0,0,0.5);
-            overflow: hidden;
+            border: 1px solid rgba(0,0,0,0.2);
+            background-size: 100% 100%;
         }
-        
-        .cubie .side::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: linear-gradient(135deg, rgba(255,255,255,0.3) 0%, transparent 50%);
-            pointer-events: none;
-        }
-        
-        /* Face colors - SHINY TEXTURED */
-        .color-W .side { background: linear-gradient(145deg, #ffffff 0%, #e0e0e0 100%); box-shadow: inset 0 1px 5px rgba(255,255,255,0.5), inset 0 -2px 5px rgba(0,0,0,0.2); }
-        .color-Y .side { background: linear-gradient(145deg, #ffff00 0%, #e0e000 100%); box-shadow: inset 0 1px 5px rgba(255,255,0,0.5), inset 0 -2px 5px rgba(0,0,0,0.2); }
-        .color-R .side { background: linear-gradient(145deg, #ff0000 0%, #cc0000 100%); box-shadow: inset 0 1px 5px rgba(255,0,0,0.5), inset 0 -2px 5px rgba(0,0,0,0.4); }
-        .color-O .side { background: linear-gradient(145deg, #ff8c00 0%, #e07000 100%); box-shadow: inset 0 1px 5px rgba(255,140,0,0.5), inset 0 -2px 5px rgba(0,0,0,0.2); }
-        .color-G .side { background: linear-gradient(145deg, #00ff00 0%, #00cc00 100%); box-shadow: inset 0 1px 5px rgba(0,255,0,0.5), inset 0 -2px 5px rgba(0,0,0,0.4); }
-        .color-B .side { background: linear-gradient(145deg, #0000ff 0%, #0000cc 100%); box-shadow: inset 0 1px 5px rgba(0,0,255,0.5), inset 0 -2px 5px rgba(0,0,0,0.4); }
         
         /* Side positioning */
         .side.front  { transform: rotateY(  0deg) translateZ(50%); }
@@ -115,6 +85,14 @@
         .side.left   { transform: rotateY(-90deg) translateZ(50%); }
         .side.up     { transform: rotateX( 90deg) translateZ(50%); }
         .side.down   { transform: rotateX(-90deg) translateZ(50%); }
+        
+        /* Face colors - SHINY TEXTURED */
+        .color-W .side { background: linear-gradient(145deg, #ffffff 0%, #e0e0e0 100%); }
+        .color-Y .side { background: linear-gradient(145deg, #ffff00 0%, #e0e000 100%); }
+        .color-R .side { background: linear-gradient(145deg, #ff0000 0%, #cc0000 100%); }
+        .color-O .side { background: linear-gradient(145deg, #ff8c00 0%, #e07000 100%); }
+        .color-G .side { background: linear-gradient(145deg, #00ff00 0%, #00cc00 100%); }
+        .color-B .side { background: linear-gradient(145deg, #0000ff 0%, #0000cc 100%); }
         
         .controls {
             background: rgba(0,0,0,0.7);
@@ -430,7 +408,6 @@
     
     <script>
         // Cube state: 6 faces, each 3x3
-        // Each cubie has a position and color for each visible face
         let cube = {
             front: [['G','G','G'],['G','G','G'],['G','G','G']],
             back:  [['B','B','B'],['B','B','B'],['B','B','B']],
@@ -465,13 +442,7 @@
         function createCubies() {
             cubeEl.innerHTML = '';
             
-            // Cubie positions: each position is [face, row, col]
-            // We need to create 27 cubies (3x3x3)
-            // But we only render the visible ones based on current view
-            
-            // For simplicity, we'll create all 27 cubies and position them
-            const size = 100; // Percentage of wrapper
-            const offset = size / 2;
+            const size = 100; // Percentage
             
             for (let x = 0; x < 3; x++) {
                 for (let y = 0; y < 3; y++) {
