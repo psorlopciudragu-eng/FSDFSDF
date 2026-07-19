@@ -3,14 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Rubik's Cube - Simple & Clean</title>
+    <title>Rubik's Cube - 3D Realistic</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         
         body {
-            background: #222;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
             color: #fff;
-            font-family: Arial, sans-serif;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             min-height: 100vh;
             display: flex;
             flex-direction: column;
@@ -22,13 +22,15 @@
         h1 {
             text-align: center;
             margin-bottom: 10px;
-            color: #fff;
+            text-shadow: 0 0 30px rgba(255,255,255,0.5);
+            font-size: 2.5em;
         }
         
         .subtitle {
             color: #aaa;
             text-align: center;
             margin-bottom: 20px;
+            font-size: 1.1em;
         }
         
         #container {
@@ -38,13 +40,13 @@
             justify-content: center;
             align-items: flex-start;
             width: 100%;
-            max-width: 1200px;
+            max-width: 1400px;
         }
         
         #cube-wrapper {
-            perspective: 1000px;
-            width: 400px;
-            height: 400px;
+            perspective: 1500px;
+            width: 500px;
+            height: 500px;
             position: relative;
             cursor: grab;
         }
@@ -58,175 +60,193 @@
             height: 100%;
             position: relative;
             transform-style: preserve-3d;
-            transition: transform 0.1s ease;
+            transition: transform 0.2s ease;
         }
         
-        .face {
+        /* Individual cubies - 3D cubes */
+        .cubie {
+            position: absolute;
+            width: 30%;
+            height: 30%;
+            transform-style: preserve-3d;
+            transition: transform 0.3s ease;
+        }
+        
+        .cubie .side {
             position: absolute;
             width: 100%;
             height: 100%;
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            grid-template-rows: repeat(3, 1fr);
-            border: 1px solid #000;
-        }
-        
-        .sticker {
-            margin: 1px;
+            border: 1px solid rgba(0,0,0,0.3);
             display: flex;
             justify-content: center;
             align-items: center;
-            font-size: 20px;
+            font-size: 14px;
             font-weight: bold;
-            border-radius: 3px;
-            cursor: pointer;
-            transition: all 0.1s ease;
-            user-select: none;
-            color: #000;
+            color: rgba(255,255,255,0.3);
+            background: linear-gradient(145deg, rgba(255,255,255,0.2) 0%, rgba(0,0,0,0.1) 100%);
+            box-shadow: inset 0 1px 3px rgba(255,255,255,0.3), 
+                        inset 0 -1px 3px rgba(0,0,0,0.5);
+            overflow: hidden;
         }
         
-        .sticker:hover {
-            transform: scale(1.05);
-            box-shadow: 0 0 10px rgba(255,255,255,0.8);
+        .cubie .side::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(135deg, rgba(255,255,255,0.3) 0%, transparent 50%);
+            pointer-events: none;
         }
         
-        /* Face positions - SOLID COLORS */
-        .front  { transform: rotateY(  0deg) translateZ(100px); background: #006400; }
-        .back   { transform: rotateY(180deg) translateZ(100px); background: #00008B; }
-        .right  { transform: rotateY( 90deg) translateZ(100px); background: #DC143C; }
-        .left   { transform: rotateY(-90deg) translateZ(100px); background: #FF8C00; }
-        .up     { transform: rotateX( 90deg) translateZ(100px); background: #FFFFFF; }
-        .down   { transform: rotateX(-90deg) translateZ(100px); background: #FFFF00; }
+        /* Face colors - SHINY TEXTURED */
+        .color-W .side { background: linear-gradient(145deg, #ffffff 0%, #e0e0e0 100%); box-shadow: inset 0 1px 5px rgba(255,255,255,0.5), inset 0 -2px 5px rgba(0,0,0,0.2); }
+        .color-Y .side { background: linear-gradient(145deg, #ffff00 0%, #e0e000 100%); box-shadow: inset 0 1px 5px rgba(255,255,0,0.5), inset 0 -2px 5px rgba(0,0,0,0.2); }
+        .color-R .side { background: linear-gradient(145deg, #ff0000 0%, #cc0000 100%); box-shadow: inset 0 1px 5px rgba(255,0,0,0.5), inset 0 -2px 5px rgba(0,0,0,0.4); }
+        .color-O .side { background: linear-gradient(145deg, #ff8c00 0%, #e07000 100%); box-shadow: inset 0 1px 5px rgba(255,140,0,0.5), inset 0 -2px 5px rgba(0,0,0,0.2); }
+        .color-G .side { background: linear-gradient(145deg, #00ff00 0%, #00cc00 100%); box-shadow: inset 0 1px 5px rgba(0,255,0,0.5), inset 0 -2px 5px rgba(0,0,0,0.4); }
+        .color-B .side { background: linear-gradient(145deg, #0000ff 0%, #0000cc 100%); box-shadow: inset 0 1px 5px rgba(0,0,255,0.5), inset 0 -2px 5px rgba(0,0,0,0.4); }
         
-        /* Sticker colors - SOLID */
-        .color-W { background: #FFFFFF; color: #000; }
-        .color-Y { background: #FFFF00; color: #000; }
-        .color-R { background: #DC143C; color: #FFF; }
-        .color-O { background: #FF8C00; color: #000; }
-        .color-G { background: #006400; color: #FFF; }
-        .color-B { background: #00008B; color: #FFF; }
+        /* Side positioning */
+        .side.front  { transform: rotateY(  0deg) translateZ(50%); }
+        .side.back   { transform: rotateY(180deg) translateZ(50%); }
+        .side.right  { transform: rotateY( 90deg) translateZ(50%); }
+        .side.left   { transform: rotateY(-90deg) translateZ(50%); }
+        .side.up     { transform: rotateX( 90deg) translateZ(50%); }
+        .side.down   { transform: rotateX(-90deg) translateZ(50%); }
         
         .controls {
-            background: #111;
-            padding: 20px;
-            border-radius: 10px;
-            min-width: 300px;
-            border: 1px solid #444;
+            background: rgba(0,0,0,0.7);
+            padding: 25px;
+            border-radius: 15px;
+            min-width: 350px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255,255,255,0.1);
         }
         
         .controls h2 {
-            margin-bottom: 15px;
+            margin-bottom: 20px;
             color: #06ffa5;
             text-align: center;
+            font-size: 1.5em;
         }
         
-        .info-box {
-            background: #000;
-            padding: 15px;
-            border-radius: 8px;
+        .control-group {
             margin-bottom: 20px;
-            border: 1px solid #333;
         }
         
-        .info-box h3 {
-            color: #ff0;
+        .control-group h3 {
+            color: #888;
             margin-bottom: 10px;
-        }
-        
-        .info-box p {
-            color: #ccc;
-            font-size: 14px;
-            line-height: 1.5;
-        }
-        
-        .color-key {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 10px;
-            margin-top: 10px;
-        }
-        
-        .color-item {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-        
-        .color-swatch {
-            width: 24px;
-            height: 24px;
-            border-radius: 4px;
-            border: 1px solid #444;
+            font-size: 0.9em;
+            text-transform: uppercase;
+            letter-spacing: 1px;
         }
         
         .button-grid {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
             gap: 10px;
-            margin-bottom: 15px;
-        }
-        
-        .button-row {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 10px;
-            margin-bottom: 10px;
         }
         
         button {
-            padding: 12px;
-            font-size: 16px;
+            padding: 15px 20px;
+            font-size: 18px;
             font-weight: bold;
-            border: 1px solid #444;
-            border-radius: 8px;
+            border: none;
+            border-radius: 10px;
             cursor: pointer;
-            transition: all 0.1s ease;
+            transition: all 0.2s ease;
             color: #fff;
-            background: #333;
+            position: relative;
+            overflow: hidden;
+            background: linear-gradient(145deg, #333 0%, #222 100%);
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+        }
+        
+        button::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+            transition: left 0.5s;
+        }
+        
+        button:hover::before {
+            left: 100%;
         }
         
         button:hover {
-            background: #444;
-            transform: scale(1.05);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0,0,0,0.4);
         }
         
         button:active {
-            background: #555;
-            transform: scale(0.98);
+            transform: translateY(1px);
         }
         
-        button.face-W { background: #FFFFFF; color: #000; }
-        button.face-Y { background: #FFFF00; color: #000; }
-        button.face-R { background: #DC143C; }
-        button.face-O { background: #FF8C00; color: #000; }
-        button.face-G { background: #006400; }
-        button.face-B { background: #00008B; }
+        /* Arrow buttons with curved arrows */
+        button.arrow-R { background: linear-gradient(145deg, #ff4444 0%, #cc0000 100%); }
+        button.arrow-L { background: linear-gradient(145deg, #ffaa44 0%, #cc7000 100%); }
+        button.arrow-U { background: linear-gradient(145deg, #ffffff 0%, #e0e0e0 100%); color: #000; }
+        button.arrow-D { background: linear-gradient(145deg, #ffff44 0%, #e0e000 100%); color: #000; }
+        button.arrow-F { background: linear-gradient(145deg, #44ff44 0%, #00cc00 100%); }
+        button.arrow-B { background: linear-gradient(145deg, #4444ff 0%, #0000cc 100%); }
+        
+        button.arrow-R::after { content: '→'; font-size: 24px; }
+        button.arrow-L::after { content: '←'; font-size: 24px; }
+        button.arrow-U::after { content: '↑'; font-size: 24px; }
+        button.arrow-D::after { content: '↓'; font-size: 24px; }
+        button.arrow-F::after { content: '↗'; font-size: 24px; transform: rotate(45deg); }
+        button.arrow-B::after { content: '↖'; font-size: 24px; transform: rotate(-45deg); }
+        
+        button.arrow-R.prime::after { content: '←'; font-size: 24px; }
+        button.arrow-L.prime::after { content: '→'; font-size: 24px; }
+        button.arrow-U.prime::after { content: '↓'; font-size: 24px; }
+        button.arrow-D.prime::after { content: '↑'; font-size: 24px; }
+        button.arrow-F.prime::after { content: '↖'; font-size: 24px; transform: rotate(-45deg); }
+        button.arrow-B.prime::after { content: '↗'; font-size: 24px; transform: rotate(45deg); }
         
         button.prime {
-            background: #444 !important;
-            color: #aaa !important;
+            background: linear-gradient(145deg, #444 0%, #333 100%) !important;
         }
         
         .action-buttons {
             display: flex;
-            gap: 10px;
-            margin-bottom: 15px;
+            gap: 15px;
+            margin-bottom: 20px;
         }
         
         .action-buttons button {
             flex: 1;
+            font-size: 16px;
+            padding: 12px;
+        }
+        
+        .scramble-btn {
+            background: linear-gradient(145deg, #ff006e 0%, #8338ec 100%) !important;
+            font-size: 18px;
+        }
+        
+        .reset-btn {
+            background: linear-gradient(145deg, #3a86ff 0%, #06ffa5 100%) !important;
+            font-size: 18px;
         }
         
         .status {
             padding: 15px;
-            background: #000;
-            border-radius: 8px;
+            background: rgba(0,0,0,0.5);
+            border-radius: 10px;
             font-family: monospace;
             font-size: 13px;
             white-space: pre-wrap;
             max-height: 150px;
             overflow-y: auto;
-            border: 1px solid #333;
+            border: 1px solid rgba(255,255,255,0.1);
         }
         
         .status::-webkit-scrollbar {
@@ -242,218 +262,175 @@
             border-radius: 3px;
         }
         
-        .instructions {
-            margin-top: 20px;
-            padding: 15px;
-            background: #000;
+        .color-key {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        
+        .color-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 5px;
+        }
+        
+        .color-swatch {
+            width: 40px;
+            height: 40px;
             border-radius: 8px;
-            border: 1px solid #333;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
         }
         
-        .instructions h3 {
-            color: #ff0;
-            margin-bottom: 10px;
+        .color-label {
+            font-size: 12px;
+            color: #aaa;
         }
         
-        .instructions ul {
-            color: #ccc;
-            padding-left: 20px;
-        }
-        
-        .instructions li {
-            margin-bottom: 5px;
-        }
-        
-        @media (max-width: 900px) {
+        @media (max-width: 1000px) {
             #container {
                 flex-direction: column;
                 align-items: center;
             }
             #cube-wrapper {
-                width: 300px;
-                height: 300px;
+                width: 350px;
+                height: 350px;
+            }
+        }
+        
+        @media (max-width: 600px) {
+            #cube-wrapper {
+                width: 280px;
+                height: 280px;
+            }
+            .controls {
+                width: 100%;
             }
         }
     </style>
 </head>
 <body>
-    <h1>Rubik's Cube - Simple Controls</h1>
-    <p class="subtitle">Drag to rotate view • Click buttons to move • No auto-spin</p>
+    <h1>🧊 Rubik's Cube</h1>
+    <p class="subtitle">Drag to rotate view • Click arrows to move • Real 3D cubies</p>
     
     <div id="container">
         <div id="cube-wrapper">
-            <div id="cube">
-                <div class="face front">
-                    <div class="sticker color-G" data-face="front" data-row="0" data-col="0">G</div>
-                    <div class="sticker color-G" data-face="front" data-row="0" data-col="1">G</div>
-                    <div class="sticker color-G" data-face="front" data-row="0" data-col="2">G</div>
-                    <div class="sticker color-G" data-face="front" data-row="1" data-col="0">G</div>
-                    <div class="sticker color-G" data-face="front" data-row="1" data-col="1">G</div>
-                    <div class="sticker color-G" data-face="front" data-row="1" data-col="2">G</div>
-                    <div class="sticker color-G" data-face="front" data-row="2" data-col="0">G</div>
-                    <div class="sticker color-G" data-face="front" data-row="2" data-col="1">G</div>
-                    <div class="sticker color-G" data-face="front" data-row="2" data-col="2">G</div>
-                </div>
-                <div class="face back">
-                    <div class="sticker color-B" data-face="back" data-row="0" data-col="0">B</div>
-                    <div class="sticker color-B" data-face="back" data-row="0" data-col="1">B</div>
-                    <div class="sticker color-B" data-face="back" data-row="0" data-col="2">B</div>
-                    <div class="sticker color-B" data-face="back" data-row="1" data-col="0">B</div>
-                    <div class="sticker color-B" data-face="back" data-row="1" data-col="1">B</div>
-                    <div class="sticker color-B" data-face="back" data-row="1" data-col="2">B</div>
-                    <div class="sticker color-B" data-face="back" data-row="2" data-col="0">B</div>
-                    <div class="sticker color-B" data-face="back" data-row="2" data-col="1">B</div>
-                    <div class="sticker color-B" data-face="back" data-row="2" data-col="2">B</div>
-                </div>
-                <div class="face right">
-                    <div class="sticker color-R" data-face="right" data-row="0" data-col="0">R</div>
-                    <div class="sticker color-R" data-face="right" data-row="0" data-col="1">R</div>
-                    <div class="sticker color-R" data-face="right" data-row="0" data-col="2">R</div>
-                    <div class="sticker color-R" data-face="right" data-row="1" data-col="0">R</div>
-                    <div class="sticker color-R" data-face="right" data-row="1" data-col="1">R</div>
-                    <div class="sticker color-R" data-face="right" data-row="1" data-col="2">R</div>
-                    <div class="sticker color-R" data-face="right" data-row="2" data-col="0">R</div>
-                    <div class="sticker color-R" data-face="right" data-row="2" data-col="1">R</div>
-                    <div class="sticker color-R" data-face="right" data-row="2" data-col="2">R</div>
-                </div>
-                <div class="face left">
-                    <div class="sticker color-O" data-face="left" data-row="0" data-col="0">O</div>
-                    <div class="sticker color-O" data-face="left" data-row="0" data-col="1">O</div>
-                    <div class="sticker color-O" data-face="left" data-row="0" data-col="2">O</div>
-                    <div class="sticker color-O" data-face="left" data-row="1" data-col="0">O</div>
-                    <div class="sticker color-O" data-face="left" data-row="1" data-col="1">O</div>
-                    <div class="sticker color-O" data-face="left" data-row="1" data-col="2">O</div>
-                    <div class="sticker color-O" data-face="left" data-row="2" data-col="0">O</div>
-                    <div class="sticker color-O" data-face="left" data-row="2" data-col="1">O</div>
-                    <div class="sticker color-O" data-face="left" data-row="2" data-col="2">O</div>
-                </div>
-                <div class="face up">
-                    <div class="sticker color-W" data-face="up" data-row="0" data-col="0">W</div>
-                    <div class="sticker color-W" data-face="up" data-row="0" data-col="1">W</div>
-                    <div class="sticker color-W" data-face="up" data-row="0" data-col="2">W</div>
-                    <div class="sticker color-W" data-face="up" data-row="1" data-col="0">W</div>
-                    <div class="sticker color-W" data-face="up" data-row="1" data-col="1">W</div>
-                    <div class="sticker color-W" data-face="up" data-row="1" data-col="2">W</div>
-                    <div class="sticker color-W" data-face="up" data-row="2" data-col="0">W</div>
-                    <div class="sticker color-W" data-face="up" data-row="2" data-col="1">W</div>
-                    <div class="sticker color-W" data-face="up" data-row="2" data-col="2">W</div>
-                </div>
-                <div class="face down">
-                    <div class="sticker color-Y" data-face="down" data-row="0" data-col="0">Y</div>
-                    <div class="sticker color-Y" data-face="down" data-row="0" data-col="1">Y</div>
-                    <div class="sticker color-Y" data-face="down" data-row="0" data-col="2">Y</div>
-                    <div class="sticker color-Y" data-face="down" data-row="1" data-col="0">Y</div>
-                    <div class="sticker color-Y" data-face="down" data-row="1" data-col="1">Y</div>
-                    <div class="sticker color-Y" data-face="down" data-row="1" data-col="2">Y</div>
-                    <div class="sticker color-Y" data-face="down" data-row="2" data-col="0">Y</div>
-                    <div class="sticker color-Y" data-face="down" data-row="2" data-col="1">Y</div>
-                    <div class="sticker color-Y" data-face="down" data-row="2" data-col="2">Y</div>
-                </div>
-            </div>
+            <div id="cube"></div>
         </div>
         
         <div class="controls">
-            <div class="info-box">
-                <h3>🎯 Color Key</h3>
-                <div class="color-key">
-                    <div class="color-item">
-                        <div class="color-swatch" style="background: #FFFFFF;"></div>
-                        <span>W = White (UP)</span>
-                    </div>
-                    <div class="color-item">
-                        <div class="color-swatch" style="background: #FFFF00;"></div>
-                        <span>Y = Yellow (DOWN)</span>
-                    </div>
-                    <div class="color-item">
-                        <div class="color-swatch" style="background: #DC143C;"></div>
-                        <span>R = Red (RIGHT)</span>
-                    </div>
-                    <div class="color-item">
-                        <div class="color-swatch" style="background: #FF8C00;"></div>
-                        <span>O = Orange (LEFT)</span>
-                    </div>
-                    <div class="color-item">
-                        <div class="color-swatch" style="background: #006400;"></div>
-                        <span>G = Green (FRONT)</span>
-                    </div>
-                    <div class="color-item">
-                        <div class="color-swatch" style="background: #00008B;"></div>
-                        <span>B = Blue (BACK)</span>
-                    </div>
+            <h2>Controls</h2>
+            
+            <div class="color-key">
+                <div class="color-item">
+                    <div class="color-swatch" style="background: linear-gradient(145deg, #ffffff 0%, #e0e0e0 100%);"></div>
+                    <span class="color-label">White</span>
+                </div>
+                <div class="color-item">
+                    <div class="color-swatch" style="background: linear-gradient(145deg, #ffff00 0%, #e0e000 100%);"></div>
+                    <span class="color-label">Yellow</span>
+                </div>
+                <div class="color-item">
+                    <div class="color-swatch" style="background: linear-gradient(145deg, #ff0000 0%, #cc0000 100%);"></div>
+                    <span class="color-label">Red</span>
+                </div>
+                <div class="color-item">
+                    <div class="color-swatch" style="background: linear-gradient(145deg, #ff8c00 0%, #e07000 100%);"></div>
+                    <span class="color-label">Orange</span>
+                </div>
+                <div class="color-item">
+                    <div class="color-swatch" style="background: linear-gradient(145deg, #00ff00 0%, #00cc00 100%);"></div>
+                    <span class="color-label">Green</span>
+                </div>
+                <div class="color-item">
+                    <div class="color-swatch" style="background: linear-gradient(145deg, #0000ff 0%, #0000cc 100%);"></div>
+                    <span class="color-label">Blue</span>
                 </div>
             </div>
             
-            <div class="info-box">
-                <h3>📖 What Each Button Does</h3>
-                <p><strong>R</strong> = Rotate RIGHT face clockwise</p>
-                <p><strong>R'</strong> = Rotate RIGHT face counter-clockwise</p>
-                <p><strong>L</strong> = Rotate LEFT face clockwise</p>
-                <p><strong>L'</strong> = Rotate LEFT face counter-clockwise</p>
-                <p><strong>U</strong> = Rotate UP face clockwise</p>
-                <p><strong>U'</strong> = Rotate UP face counter-clockwise</p>
-                <p><strong>D</strong> = Rotate DOWN face clockwise</p>
-                <p><strong>D'</strong> = Rotate DOWN face counter-clockwise</p>
-                <p><strong>F</strong> = Rotate FRONT face clockwise</p>
-                <p><strong>F'</strong> = Rotate FRONT face counter-clockwise</p>
-                <p><strong>B</strong> = Rotate BACK face clockwise</p>
-                <p><strong>B'</strong> = Rotate BACK face counter-clockwise</p>
-            </div>
-            
             <div class="action-buttons">
-                <button onclick="scramble()" style="background: linear-gradient(90deg, #ff006e, #8338ec); border: none;">🔀 SCRAMBLE</button>
-                <button onclick="reset()" style="background: linear-gradient(90deg, #3a86ff, #06ffa5); border: none;">🔄 RESET</button>
+                <button class="scramble-btn" onclick="scramble()">🔀 SCRAMBLE</button>
+                <button class="reset-btn" onclick="reset()">🔄 RESET</button>
             </div>
             
-            <h2>Controls</h2>
-            
-            <div class="button-row">
-                <button class="face-W" onclick="rotate('U')">U</button>
-                <button class="face-Y prime" onclick="rotate('U', true)">U'</button>
-                <button></button>
+            <div class="control-group">
+                <h3>Top & Bottom</h3>
+                <div class="button-grid">
+                    <button></button>
+                    <button class="arrow-U" onclick="rotate('U')"></button>
+                    <button></button>
+                </div>
+                <div class="button-grid">
+                    <button></button>
+                    <button class="arrow-U prime" onclick="rotate('U', true)"></button>
+                    <button></button>
+                </div>
             </div>
             
-            <div class="button-row">
-                <button class="face-O" onclick="rotate('L')">L</button>
-                <button class="face-G" onclick="rotate('F')">F</button>
-                <button class="face-R" onclick="rotate('R')">R</button>
+            <div class="control-group">
+                <h3>Front & Back</h3>
+                <div class="button-grid">
+                    <button></button>
+                    <button class="arrow-F" onclick="rotate('F')"></button>
+                    <button></button>
+                </div>
+                <div class="button-grid">
+                    <button></button>
+                    <button class="arrow-F prime" onclick="rotate('F', true)"></button>
+                    <button></button>
+                </div>
             </div>
             
-            <div class="button-row">
-                <button class="face-O prime" onclick="rotate('L', true)">L'</button>
-                <button class="face-G prime" onclick="rotate('F', true)">F'</button>
-                <button class="face-R prime" onclick="rotate('R', true)">R'</button>
+            <div class="control-group">
+                <h3>Left & Right</h3>
+                <div class="button-grid">
+                    <button class="arrow-L" onclick="rotate('L')"></button>
+                    <button></button>
+                    <button class="arrow-R" onclick="rotate('R')"></button>
+                </div>
+                <div class="button-grid">
+                    <button class="arrow-L prime" onclick="rotate('L', true)"></button>
+                    <button></button>
+                    <button class="arrow-R prime" onclick="rotate('R', true)"></button>
+                </div>
             </div>
             
-            <div class="button-row">
-                <button></button>
-                <button class="face-B" onclick="rotate('B')">B</button>
-                <button class="face-Y" onclick="rotate('D')">D</button>
+            <div class="control-group">
+                <h3>Back</h3>
+                <div class="button-grid">
+                    <button></button>
+                    <button class="arrow-B" onclick="rotate('B')"></button>
+                    <button></button>
+                </div>
+                <div class="button-grid">
+                    <button></button>
+                    <button class="arrow-B prime" onclick="rotate('B', true)"></button>
+                    <button></button>
+                </div>
             </div>
             
-            <div class="button-row">
-                <button></button>
-                <button class="face-B prime" onclick="rotate('B', true)">B'</button>
-                <button class="face-Y prime" onclick="rotate('D', true)">D'</button>
+            <div class="control-group">
+                <h3>Bottom</h3>
+                <div class="button-grid">
+                    <button></button>
+                    <button class="arrow-D" onclick="rotate('D')"></button>
+                    <button></button>
+                </div>
+                <div class="button-grid">
+                    <button></button>
+                    <button class="arrow-D prime" onclick="rotate('D', true)"></button>
+                    <button></button>
+                </div>
             </div>
             
-            <div class="status" id="status">Drag cube to rotate view. Click buttons to move. Ready!</div>
+            <div class="status" id="status">Drag cube to rotate view. Click arrows to move. Ready!</div>
         </div>
-    </div>
-    
-    <div class="instructions">
-        <h3>🎮 How to Use</h3>
-        <ul>
-            <li><strong>Drag</strong> on the cube to rotate your view (pan, zoom)</li>
-            <li><strong>Click</strong> move buttons to rotate cube faces</li>
-            <li><strong>SCRAMBLE</strong> to randomly mix the cube</li>
-            <li><strong>RESET</strong> to return to solved state</li>
-            <li>Color key shows which color is which face</li>
-            <li>Move descriptions explain what each button does</li>
-        </ul>
     </div>
     
     <script>
         // Cube state: 6 faces, each 3x3
+        // Each cubie has a position and color for each visible face
         let cube = {
             front: [['G','G','G'],['G','G','G'],['G','G','G']],
             back:  [['B','B','B'],['B','B','B'],['B','B','B']],
@@ -467,39 +444,101 @@
         let isDragging = false;
         let lastMouseX = 0;
         let lastMouseY = 0;
-        let rotateX = 0;
-        let rotateY = 0;
+        let rotateX = -15;
+        let rotateY = 30;
         let zoom = 100;
         
-        // DOM elements
         const cubeEl = document.getElementById('cube');
         const wrapperEl = document.getElementById('cube-wrapper');
         const statusEl = document.getElementById('status');
         
-        // Initialize cube display
-        function updateCubeDisplay() {
-            const faces = ['front', 'back', 'right', 'left', 'up', 'down'];
-            const faceClasses = ['front', 'back', 'right', 'left', 'up', 'down'];
+        const COLORS = {
+            'W': 'color-W',
+            'Y': 'color-Y',
+            'R': 'color-R',
+            'O': 'color-O',
+            'G': 'color-G',
+            'B': 'color-B'
+        };
+        
+        // Create 3D cubies
+        function createCubies() {
+            cubeEl.innerHTML = '';
             
-            for (let i = 0; i < faces.length; i++) {
-                const faceName = faces[i];
-                const faceClass = faceClasses[i];
-                const faceData = cube[faceName];
-                const faceEl = document.querySelector(`.face.${faceClass}`);
-                const stickers = faceEl.querySelectorAll('.sticker');
-                
-                for (let r = 0; r < 3; r++) {
-                    for (let c = 0; c < 3; c++) {
-                        const idx = r * 3 + c;
-                        const color = faceData[r][c];
-                        const sticker = stickers[idx];
-                        sticker.textContent = color;
-                        sticker.className = `sticker color-${color}`;
+            // Cubie positions: each position is [face, row, col]
+            // We need to create 27 cubies (3x3x3)
+            // But we only render the visible ones based on current view
+            
+            // For simplicity, we'll create all 27 cubies and position them
+            const size = 100; // Percentage of wrapper
+            const offset = size / 2;
+            
+            for (let x = 0; x < 3; x++) {
+                for (let y = 0; y < 3; y++) {
+                    for (let z = 0; z < 3; z++) {
+                        const cubie = document.createElement('div');
+                        cubie.className = 'cubie';
+                        
+                        // Position the cubie
+                        const posX = (x - 1) * size;
+                        const posY = (y - 1) * size;
+                        const posZ = (z - 1) * size;
+                        
+                        cubie.style.transform = `translateX(${posX}%) translateY(${posY}%) translateZ(${posZ}%)`;
+                        
+                        // Determine which faces are visible and their colors
+                        const faces = [];
+                        
+                        // Front face (z = 2)
+                        if (z === 2) {
+                            const color = cube.front[y][x];
+                            faces.push({ side: 'front', color: color });
+                        }
+                        
+                        // Back face (z = 0)
+                        if (z === 0) {
+                            const color = cube.back[y][2 - x];
+                            faces.push({ side: 'back', color: color });
+                        }
+                        
+                        // Right face (x = 2)
+                        if (x === 2) {
+                            const color = cube.right[y][z];
+                            faces.push({ side: 'right', color: color });
+                        }
+                        
+                        // Left face (x = 0)
+                        if (x === 0) {
+                            const color = cube.left[y][2 - z];
+                            faces.push({ side: 'left', color: color });
+                        }
+                        
+                        // Up face (y = 0)
+                        if (y === 0) {
+                            const color = cube.up[2 - z][x];
+                            faces.push({ side: 'up', color: color });
+                        }
+                        
+                        // Down face (y = 2)
+                        if (y === 2) {
+                            const color = cube.down[z][x];
+                            faces.push({ side: 'down', color: color });
+                        }
+                        
+                        // Create sides
+                        faces.forEach(face => {
+                            const side = document.createElement('div');
+                            side.className = `side ${face.side} ${COLORS[face.color]}`;
+                            cubie.appendChild(side);
+                        });
+                        
+                        cubeEl.appendChild(cubie);
                     }
                 }
             }
             
-            updateStatus();
+            // Apply view rotation
+            cubeEl.style.transform = `rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale(${zoom/100})`;
         }
         
         function updateStatus() {
@@ -535,7 +574,8 @@
                 case 'B': doB(prime); break;
             }
             
-            updateCubeDisplay();
+            createCubies();
+            updateStatus();
         }
         
         function doR(prime) {
@@ -732,7 +772,8 @@
                 down:  [['Y','Y','Y'],['Y','Y','Y'],['Y','Y','Y']]
             };
             moveHistory = [];
-            updateCubeDisplay();
+            createCubies();
+            updateStatus();
             statusEl.textContent = 'Reset! Cube is solved.';
         }
         
@@ -753,10 +794,9 @@
             rotateY += dx * 0.5;
             rotateX -= dy * 0.5;
             
-            // Limit vertical rotation
             rotateX = Math.max(-80, Math.min(80, rotateX));
             
-            cubeEl.style.transform = `rotateX(${rotateX}deg) rotateY(${rotateY}deg)`;
+            cubeEl.style.transform = `rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale(${zoom/100})`;
             
             lastMouseX = e.clientX;
             lastMouseY = e.clientY;
@@ -772,15 +812,6 @@
             zoom += e.deltaY * 0.1;
             zoom = Math.max(50, Math.min(200, zoom));
             cubeEl.style.transform = `rotateX(${rotateX}deg) rotateY(${rotateY}deg) scale(${zoom/100})`;
-        });
-        
-        // Click on stickers to rotate the face
-        document.querySelectorAll('.sticker').forEach(sticker => {
-            sticker.addEventListener('click', (e) => {
-                const face = sticker.dataset.face;
-                rotate(face.toUpperCase());
-                e.stopPropagation();
-            });
         });
         
         // Keyboard controls
@@ -802,7 +833,8 @@
         });
         
         // Initialize
-        updateCubeDisplay();
+        createCubies();
+        updateStatus();
     </script>
 </body>
 </html>
