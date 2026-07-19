@@ -42,6 +42,7 @@
             height: 100%;
             background: #111;
             display: block;
+            cursor: crosshair;
         }
         
         h1 {
@@ -187,35 +188,7 @@
             font-size: 11px;
         }
         
-        .tooltip {
-            position: relative;
-            display: inline-block;
-        }
-        
-        .tooltip .tooltiptext {
-            visibility: hidden;
-            width: 200px;
-            background-color: #111;
-            color: #fff;
-            text-align: center;
-            border-radius: 6px;
-            padding: 8px;
-            position: absolute;
-            z-index: 1;
-            bottom: 125%;
-            left: 50%;
-            margin-left: -100px;
-            opacity: 0;
-            transition: opacity 0.3s;
-            font-size: 11px;
-        }
-        
-        .tooltip:hover .tooltiptext {
-            visibility: visible;
-            opacity: 1;
-        }
-        
-        select, input[type="color"] {
+        select, input[type="color"], input[type="number"] {
             width: 100%;
             padding: 5px;
             margin: 5px 0;
@@ -234,6 +207,23 @@
         .checkbox-label input {
             margin-right: 8px;
         }
+        
+        #mode-selector {
+            display: flex;
+            gap: 5px;
+            margin: 10px 0;
+        }
+        
+        #mode-selector button {
+            flex: 1;
+            font-size: 11px;
+            padding: 5px;
+        }
+        
+        .mode-active {
+            background: #00ff88 !important;
+            color: #000 !important;
+        }
     </style>
 </head>
 <body>
@@ -242,11 +232,21 @@
             <h1>🧪 PHYSICS SANDBOX</h1>
             
             <div class="control-group">
+                <h3>🎯 MODE</h3>
+                <div id="mode-selector">
+                    <button id="mode-add" class="mode-active">ADD</button>
+                    <button id="mode-grab">GRAB</button>
+                    <button id="mode-connect">CONNECT</button>
+                    <button id="mode-delete">DELETE</button>
+                </div>
+            </div>
+            
+            <div class="control-group">
                 <h3>⚡ ENVIRONMENT</h3>
                 
                 <label for="gravity-slider">Gravity (m/s²)</label>
                 <input type="range" id="gravity-slider" min="0" max="2" step="0.01" value="0.5">
-                <span class="value-display" id="gravity-value">0.5</span>
+                <span class="value-display" id="gravity-value">0.50</span>
                 
                 <label for="friction-slider">Friction</label>
                 <input type="range" id="friction-slider" min="0" max="1" step="0.01" value="0.98">
@@ -258,11 +258,11 @@
                 
                 <label for="bounce-slider">Bounciness</label>
                 <input type="range" id="bounce-slider" min="0" max="1" step="0.01" value="0.7">
-                <span class="value-display" id="bounce-value">0.7</span>
+                <span class="value-display" id="bounce-value">0.70</span>
             </div>
             
             <div class="control-group">
-                <h3>🎯 ADD OBJECTS</h3>
+                <h3>🎨 ADD OBJECTS</h3>
                 
                 <select id="object-type">
                     <option value="circle">Circle</option>
@@ -282,18 +282,17 @@
                 <input type="color" id="obj-color" value="#ff0000">
                 
                 <div class="checkbox-label">
-                    <input type="checkbox" id="obj-fixed" checked>
+                    <input type="checkbox" id="obj-fixed">
                     <span>Fixed (Static)</span>
                 </div>
                 
-                <button id="add-btn">ADD OBJECT</button>
-                <button id="clear-btn">CLEAR ALL</button>
+                <button id="add-btn">ADD OBJECT AT CENTER</button>
             </div>
             
             <div class="control-group">
                 <h3>💥 FORCES & INTERACTIONS</h3>
                 
-                <button id="add-force-btn">ADD FORCE VECTOR</button>
+                <button id="clear-btn">CLEAR ALL</button>
                 <button id="add-spring-btn">ADD SPRING</button>
                 <button id="add-rope-btn">ADD ROPE</button>
                 
@@ -314,7 +313,7 @@
             </div>
             
             <div class="control-group">
-                <h3>🎨 PRESETS</h3>
+                <h3>🎬 PRESETS</h3>
                 
                 <button id="preset-pendulum">PENDULUM</button>
                 <button id="preset-domino">DOMINO EFFECT</button>
@@ -324,21 +323,13 @@
             </div>
             
             <div class="control-group">
-                <h3>ℹ️ PHYSICS EXPLAINED</h3>
+                <h3>ℹ️ HOW TO USE</h3>
                 
                 <div class="info-box">
-                    <h4>📚 LEARN AS YOU PLAY</h4>
-                    <p><strong>Gravity:</strong> Pulls objects downward. Adjust to see how different gravity affects motion.</p>
-                    <p><strong>Friction:</strong> Slows moving objects. Set to 1 for no friction (ice), 0.9 for realistic.</p>
-                    <p><strong>Bounciness:</strong> How much energy is preserved in collisions (0 = sticky, 1 = super bouncy).</p>
-                </div>
-                
-                <div class="info-box">
-                    <h4>🎯 INTERACTIONS</h4>
-                    <p><strong>Click & Drag:</strong> Move objects, apply forces</p>
-                    <p><strong>Right-Click:</strong> Delete object</p>
-                    <p><strong>Scroll:</strong> Zoom in/out</p>
-                    <p><strong>Shift+Click:</strong> Connect objects</p>
+                    <h4>🖱️ MOUSE CONTROLS</h4>
+                    <p id="mode-instructions">Click anywhere to ADD objects</p>
+                    <p>Scroll: Zoom in/out</p>
+                    <p>Right-click: Pan camera</p>
                 </div>
             </div>
         </div>
@@ -346,9 +337,6 @@
         <div id="canvas-container">
             <canvas id="physics-canvas"></canvas>
             <div id="stats">FPS: 60 | Objects: 0 | Time: 0s</div>
-            <div id="instructions">
-                LEFT CLICK: Add/Grab | RIGHT CLICK: Delete | SCROLL: Zoom | SHIFT+CLICK: Connect
-            </div>
         </div>
     </div>
 
@@ -357,6 +345,7 @@
         const canvas = document.getElementById('physics-canvas');
         const ctx = canvas.getContext('2d');
         const statsDisplay = document.getElementById('stats');
+        const modeInstructions = document.getElementById('mode-instructions');
         
         // Set canvas size
         function resizeCanvas() {
@@ -390,19 +379,29 @@
         const mouse = {
             x: 0,
             y: 0,
+            screenX: 0,
+            screenY: 0,
             down: false,
             rightDown: false,
             shiftDown: false,
             draggedObject: null,
             dragOffsetX: 0,
-            dragOffsetY: 0
+            dragOffsetY: 0,
+            lastX: 0,
+            lastY: 0
         };
+        
+        // Interaction mode
+        let mode = 'add'; // 'add', 'grab', 'connect', 'delete'
         
         // Objects array
         let objects = [];
         let springs = [];
         let ropes = [];
         let forceVectors = [];
+        
+        // Connection state
+        let connectingObj = null;
         
         // Time tracking
         let startTime = Date.now();
@@ -456,33 +455,25 @@
             update(dt) {
                 if (this.fixed) return;
                 
-                // Apply forces
                 this.vx += this.ax * dt;
                 this.vy += this.ay * dt;
                 
-                // Apply friction
                 if (physics.frictionEnabled) {
                     this.vx *= physics.friction;
                     this.vy *= physics.friction;
                 }
                 
-                // Apply air resistance
                 this.vx *= physics.airResistance;
                 this.vy *= physics.airResistance;
                 
-                // Apply gravity
                 if (physics.gravityEnabled) {
                     this.vy += physics.gravity * dt;
                 }
                 
-                // Update position
                 this.x += this.vx * dt;
                 this.y += this.vy * dt;
-                
-                // Update rotation
                 this.rotation += this.angularVelocity * dt;
                 
-                // Reset acceleration
                 this.ax = 0;
                 this.ay = 0;
             }
@@ -493,21 +484,18 @@
                 ctx.translate(screenPos.x, screenPos.y);
                 ctx.rotate(this.rotation);
                 
-                // Draw circle
                 ctx.fillStyle = this.color;
                 ctx.beginPath();
                 ctx.arc(0, 0, this.radius * camera.zoom, 0, Math.PI * 2);
                 ctx.fill();
                 
-                // Draw border
                 ctx.strokeStyle = this.fixed ? '#ffff00' : '#ffffff';
                 ctx.lineWidth = 2;
                 ctx.beginPath();
                 ctx.arc(0, 0, this.radius * camera.zoom, 0, Math.PI * 2);
                 ctx.stroke();
                 
-                // Draw velocity vector
-                if (!this.fixed && Math.abs(this.vx) + Math.abs(this.vy) > 0.1) {
+                if (!this.fixed && (Math.abs(this.vx) + Math.abs(this.vy) > 0.1)) {
                     ctx.strokeStyle = '#00ffff';
                     ctx.lineWidth = 1;
                     ctx.beginPath();
@@ -603,7 +591,7 @@
                     this.height * camera.zoom
                 );
                 
-                if (!this.fixed && Math.abs(this.vx) + Math.abs(this.vy) > 0.1) {
+                if (!this.fixed && (Math.abs(this.vx) + Math.abs(this.vy) > 0.1)) {
                     ctx.strokeStyle = '#00ffff';
                     ctx.lineWidth = 1;
                     ctx.beginPath();
@@ -616,7 +604,6 @@
             }
             
             containsPoint(x, y) {
-                // Transform point to object's local coordinates
                 const cos = Math.cos(-this.rotation);
                 const sin = Math.sin(-this.rotation);
                 const localX = (x - this.x) * cos - (y - this.y) * sin;
@@ -626,7 +613,6 @@
             }
             
             getBounds() {
-                // Get axis-aligned bounding box
                 const cos = Math.cos(this.rotation);
                 const sin = Math.sin(this.rotation);
                 const halfW = this.width / 2;
@@ -718,7 +704,7 @@
                 ctx.closePath();
                 ctx.stroke();
                 
-                if (!this.fixed && Math.abs(this.vx) + Math.abs(this.vy) > 0.1) {
+                if (!this.fixed && (Math.abs(this.vx) + Math.abs(this.vy) > 0.1)) {
                     ctx.strokeStyle = '#00ffff';
                     ctx.lineWidth = 1;
                     ctx.beginPath();
@@ -731,13 +717,11 @@
             }
             
             containsPoint(x, y) {
-                // Transform point to object's local coordinates
                 const cos = Math.cos(-this.rotation);
                 const sin = Math.sin(-this.rotation);
                 const localX = (x - this.x) * cos - (y - this.y) * sin;
                 const localY = (x - this.x) * sin + (y - this.y) * cos;
                 
-                // Check if point is inside triangle
                 const h = this.size / 2;
                 return (
                     localY >= -h &&
@@ -870,7 +854,6 @@
             const bounds1 = obj1.getBounds();
             const bounds2 = obj2.getBounds();
             
-            // AABB collision detection
             if (bounds1.x + bounds1.width < bounds2.x ||
                 bounds1.x > bounds2.x + bounds2.width ||
                 bounds1.y + bounds1.height < bounds2.y ||
@@ -878,7 +861,6 @@
                 return false;
             }
             
-            // More precise collision detection
             if (obj1.type === 'circle' && obj2.type === 'circle') {
                 const dx = obj2.x - obj1.x;
                 const dy = obj2.y - obj1.y;
@@ -896,13 +878,11 @@
             const bounds1 = obj1.getBounds();
             const bounds2 = obj2.getBounds();
             
-            // Calculate overlap
             const overlapX = Math.min(bounds1.x + bounds1.width, bounds2.x + bounds2.width) - 
                             Math.max(bounds1.x, bounds2.x);
             const overlapY = Math.min(bounds1.y + bounds1.height, bounds2.y + bounds2.height) - 
                             Math.max(bounds1.y, bounds2.y);
             
-            // Determine collision normal
             let nx = 0, ny = 0;
             if (overlapX < overlapY) {
                 if (bounds1.x < bounds2.x) {
@@ -918,25 +898,17 @@
                 }
             }
             
-            // Calculate relative velocity
             const rvx = obj2.vx - obj1.vx;
             const rvy = obj2.vy - obj1.vy;
-            
-            // Calculate relative velocity in terms of the normal direction
             const velocityAlongNormal = rvx * nx + rvy * ny;
             
-            // Do not resolve if objects are moving away
             if (velocityAlongNormal > 0) return;
             
-            // Calculate restitution (bounciness)
             const e = physics.bounciness;
-            
-            // Calculate impulse scalar
             const j = -(1 + e) * velocityAlongNormal;
             const totalMass = obj1.fixed ? obj2.mass : (obj2.fixed ? obj1.mass : obj1.mass + obj2.mass);
             const impulse = j / totalMass;
             
-            // Apply impulse
             if (!obj1.fixed) {
                 obj1.vx -= impulse * nx * obj2.mass;
                 obj1.vy -= impulse * ny * obj2.mass;
@@ -946,7 +918,6 @@
                 obj2.vy += impulse * ny * obj1.mass;
             }
             
-            // Positional correction to prevent sinking
             const correction = 0.2;
             if (!obj1.fixed && !obj2.fixed) {
                 obj1.x -= nx * overlapX * correction / 2;
@@ -980,23 +951,30 @@
             return obj;
         }
         
+        // Find object at position
+        function findObjectAt(x, y) {
+            for (let i = objects.length - 1; i >= 0; i--) {
+                if (objects[i].containsPoint(x, y)) {
+                    return objects[i];
+                }
+            }
+            return null;
+        }
+        
         // Mouse event handlers
         canvas.addEventListener('mousedown', (e) => {
             const pos = getCanvasPosition();
-            const worldPos = screenToWorld(e.clientX - pos.x, e.clientY - pos.y);
+            mouse.screenX = e.clientX - pos.x;
+            mouse.screenY = e.clientY - pos.y;
+            const worldPos = screenToWorld(mouse.screenX, mouse.screenY);
+            mouse.x = worldPos.x;
+            mouse.y = worldPos.y;
+            mouse.lastX = mouse.x;
+            mouse.lastY = mouse.y;
             
             if (e.button === 2) {
-                // Right click - delete object
+                // Right click - pan camera
                 mouse.rightDown = true;
-                for (let i = objects.length - 1; i >= 0; i--) {
-                    if (objects[i].containsPoint(worldPos.x, worldPos.y)) {
-                        // Remove connected springs and ropes
-                        springs = springs.filter(s => s.obj1 !== objects[i] && s.obj2 !== objects[i]);
-                        ropes = ropes.filter(r => r.obj1 !== objects[i] && r.obj2 !== objects[i]);
-                        objects.splice(i, 1);
-                        break;
-                    }
-                }
                 return;
             }
             
@@ -1004,57 +982,113 @@
                 // Left click
                 mouse.down = true;
                 
-                // Check if clicking on an object
-                for (let i = objects.length - 1; i >= 0; i--) {
-                    if (objects[i].containsPoint(worldPos.x, worldPos.y)) {
-                        mouse.draggedObject = objects[i];
-                        mouse.dragOffsetX = objects[i].x - worldPos.x;
-                        mouse.dragOffsetY = objects[i].y - worldPos.y;
+                switch (mode) {
+                    case 'add':
+                        // Add object at click position
+                        const type = document.getElementById('object-type').value;
+                        const size = parseInt(document.getElementById('obj-size').value);
+                        const mass = parseInt(document.getElementById('obj-mass').value);
+                        const color = document.getElementById('obj-color').value;
+                        const fixed = document.getElementById('obj-fixed').checked;
+                        addObject(type, mouse.x, mouse.y, size, mass, color, fixed);
                         break;
-                    }
-                }
-                
-                // If shift is held, try to connect objects
-                if (mouse.shiftDown && mouse.draggedObject) {
-                    for (let obj of objects) {
-                        if (obj !== mouse.draggedObject && obj.containsPoint(worldPos.x, worldPos.y)) {
-                            // Create a spring between the two objects
-                            const dx = obj.x - mouse.draggedObject.x;
-                            const dy = obj.y - mouse.draggedObject.y;
-                            const distance = Math.sqrt(dx * dx + dy * dy);
-                            springs.push(new Spring(mouse.draggedObject, obj, distance, 0.1, 0.5));
-                            mouse.draggedObject = null;
-                            return;
+                        
+                    case 'grab':
+                        // Grab object
+                        const obj = findObjectAt(mouse.x, mouse.y);
+                        if (obj) {
+                            mouse.draggedObject = obj;
+                            mouse.dragOffsetX = obj.x - mouse.x;
+                            mouse.dragOffsetY = obj.y - mouse.y;
+                            mouse.draggedObject.vx = 0;
+                            mouse.draggedObject.vy = 0;
                         }
-                    }
+                        break;
+                        
+                    case 'connect':
+                        // Start connection
+                        const obj1 = findObjectAt(mouse.x, mouse.y);
+                        if (obj1) {
+                            connectingObj = obj1;
+                        }
+                        break;
+                        
+                    case 'delete':
+                        // Delete object
+                        for (let i = objects.length - 1; i >= 0; i--) {
+                            if (objects[i].containsPoint(mouse.x, mouse.y)) {
+                                springs = springs.filter(s => s.obj1 !== objects[i] && s.obj2 !== objects[i]);
+                                ropes = ropes.filter(r => r.obj1 !== objects[i] && r.obj2 !== objects[i]);
+                                objects.splice(i, 1);
+                                break;
+                            }
+                        }
+                        break;
                 }
             }
         });
         
         canvas.addEventListener('mousemove', (e) => {
             const pos = getCanvasPosition();
-            mouse.x = e.clientX - pos.x;
-            mouse.y = e.clientY - pos.y;
+            mouse.screenX = e.clientX - pos.x;
+            mouse.screenY = e.clientY - pos.y;
+            const worldPos = screenToWorld(mouse.screenX, mouse.screenY);
+            mouse.x = worldPos.x;
+            mouse.y = worldPos.y;
+            
+            if (mouse.rightDown) {
+                // Pan camera
+                camera.x -= (mouse.x - mouse.lastX);
+                camera.y -= (mouse.y - mouse.lastY);
+                mouse.lastX = mouse.x;
+                mouse.lastY = mouse.y;
+                return;
+            }
             
             if (mouse.down && mouse.draggedObject) {
-                const worldPos = screenToWorld(mouse.x, mouse.y);
-                mouse.draggedObject.x = worldPos.x + mouse.dragOffsetX;
-                mouse.draggedObject.y = worldPos.y + mouse.dragOffsetY;
-                mouse.draggedObject.vx = 0;
-                mouse.draggedObject.vy = 0;
+                mouse.draggedObject.x = mouse.x + mouse.dragOffsetX;
+                mouse.draggedObject.y = mouse.y + mouse.dragOffsetY;
             }
         });
         
-        canvas.addEventListener('mouseup', () => {
-            mouse.down = false;
-            mouse.rightDown = false;
-            mouse.draggedObject = null;
+        canvas.addEventListener('mouseup', (e) => {
+            const pos = getCanvasPosition();
+            const worldPos = screenToWorld(e.clientX - pos.x, e.clientY - pos.y);
+            
+            if (e.button === 2) {
+                mouse.rightDown = false;
+                return;
+            }
+            
+            if (e.button === 0) {
+                if (mode === 'connect' && connectingObj) {
+                    // Complete connection
+                    const obj2 = findObjectAt(worldPos.x, worldPos.y);
+                    if (obj2 && obj2 !== connectingObj) {
+                        const dx = obj2.x - connectingObj.x;
+                        const dy = obj2.y - connectingObj.y;
+                        const distance = Math.sqrt(dx * dx + dy * dy);
+                        springs.push(new Spring(connectingObj, obj2, distance, 0.1, 0.5));
+                    }
+                    connectingObj = null;
+                }
+                
+                mouse.down = false;
+                mouse.draggedObject = null;
+            }
         });
         
         canvas.addEventListener('wheel', (e) => {
             e.preventDefault();
             const zoomFactor = e.deltaY > 0 ? 0.9 : 1.1;
+            const oldZoom = camera.zoom;
             camera.zoom = Math.max(0.1, Math.min(3, camera.zoom * zoomFactor));
+            
+            // Zoom towards mouse position
+            const pos = getCanvasPosition();
+            const mouseWorld = screenToWorld(e.clientX - pos.x, e.clientY - pos.y);
+            camera.x = mouseWorld.x - (e.clientX - pos.x - canvas.width/2) / (camera.zoom * canvas.width/2) * (camera.zoom - oldZoom);
+            camera.y = mouseWorld.y - (e.clientY - pos.y - canvas.height/2) / (camera.zoom * canvas.height/2) * (camera.zoom - oldZoom);
         });
         
         canvas.addEventListener('contextmenu', (e) => {
@@ -1065,12 +1099,6 @@
             if (e.key === 'Shift') {
                 mouse.shiftDown = true;
             }
-            
-            // Space to drop object
-            if (e.key === ' ' && mouse.draggedObject) {
-                mouse.draggedObject = null;
-                mouse.down = false;
-            }
         });
         
         window.addEventListener('keyup', (e) => {
@@ -1078,6 +1106,38 @@
                 mouse.shiftDown = false;
             }
         });
+        
+        // Mode buttons
+        document.getElementById('mode-add').addEventListener('click', () => {
+            mode = 'add';
+            updateModeButtons();
+            modeInstructions.textContent = 'Click anywhere to ADD objects';
+        });
+        
+        document.getElementById('mode-grab').addEventListener('click', () => {
+            mode = 'grab';
+            updateModeButtons();
+            modeInstructions.textContent = 'Click and drag to MOVE objects';
+        });
+        
+        document.getElementById('mode-connect').addEventListener('click', () => {
+            mode = 'connect';
+            updateModeButtons();
+            modeInstructions.textContent = 'Click first object, then second to CONNECT with spring';
+        });
+        
+        document.getElementById('mode-delete').addEventListener('click', () => {
+            mode = 'delete';
+            updateModeButtons();
+            modeInstructions.textContent = 'Click to DELETE objects';
+        });
+        
+        function updateModeButtons() {
+            document.querySelectorAll('#mode-selector button').forEach(btn => {
+                btn.classList.remove('mode-active');
+            });
+            document.getElementById(`mode-${mode}`).classList.add('mode-active');
+        }
         
         // UI event handlers
         document.getElementById('gravity-slider').addEventListener('input', (e) => {
@@ -1127,8 +1187,9 @@
             const color = document.getElementById('obj-color').value;
             const fixed = document.getElementById('obj-fixed').checked;
             
-            const worldPos = screenToWorld(canvas.width/2, canvas.height/2);
-            addObject(type, worldPos.x, worldPos.y, size, mass, color, fixed);
+            // Add at center of screen
+            const center = screenToWorld(canvas.width/2, canvas.height/2);
+            addObject(type, center.x, center.y, size, mass, color, fixed);
         });
         
         document.getElementById('clear-btn').addEventListener('click', () => {
@@ -1136,6 +1197,7 @@
             springs = [];
             ropes = [];
             forceVectors = [];
+            connectingObj = null;
         });
         
         document.getElementById('add-spring-btn').addEventListener('click', () => {
@@ -1143,8 +1205,6 @@
                 alert('Need at least 2 objects to create a spring!');
                 return;
             }
-            
-            // Connect last two objects
             const obj1 = objects[objects.length - 2];
             const obj2 = objects[objects.length - 1];
             const dx = obj2.x - obj1.x;
@@ -1158,7 +1218,6 @@
                 alert('Need at least 2 objects to create a rope!');
                 return;
             }
-            
             const obj1 = objects[objects.length - 2];
             const obj2 = objects[objects.length - 1];
             const dx = obj2.x - obj1.x;
@@ -1170,41 +1229,25 @@
         // Presets
         document.getElementById('preset-pendulum').addEventListener('click', () => {
             clearAll();
-            
-            // Fixed point at top
             const fixedPoint = addObject('circle', 0, -100, 10, 1000, '#ffff00', true);
-            
-            // Pendulum bob
             const bob = addObject('circle', 0, -50, 30, 10, '#ff0000', false);
-            
-            // Connect with rope
             ropes.push(new Rope(fixedPoint, bob, 100));
-            
-            // Give it a little push
             bob.vx = 2;
         });
         
         document.getElementById('preset-domino').addEventListener('click', () => {
             clearAll();
-            
-            // Create dominoes
             for (let i = 0; i < 10; i++) {
                 const domino = addObject('rectangle', i * 40 - 200, -150, 10, 50, 5, '#ff6600', false);
                 domino.rotation = Math.PI / 2;
             }
-            
-            // Add a ball to knock them over
             const ball = addObject('circle', -250, -100, 20, 20, '#00ff00', false);
             ball.vx = 5;
         });
         
         document.getElementById('preset-orbit').addEventListener('click', () => {
             clearAll();
-            
-            // Central mass
             const center = addObject('circle', 0, 0, 50, 1000, '#ffff00', true);
-            
-            // Orbiting bodies
             for (let i = 0; i < 5; i++) {
                 const angle = (i / 5) * Math.PI * 2;
                 const distance = 150 + i * 30;
@@ -1213,8 +1256,6 @@
                     Math.sin(angle) * distance,
                     15 + i * 3, 10 + i * 2, 
                     getRandomColor(), false);
-                
-                // Give tangential velocity for orbit
                 const speed = Math.sqrt(1000 / distance) * 0.5;
                 planet.vx = -Math.sin(angle) * speed;
                 planet.vy = Math.cos(angle) * speed;
@@ -1223,17 +1264,11 @@
         
         document.getElementById('preset-bridge').addEventListener('click', () => {
             clearAll();
-            
-            // Two fixed supports
             const leftSupport = addObject('rectangle', -200, 0, 20, 100, 1000, '#888888', true);
             const rightSupport = addObject('rectangle', 200, 0, 20, 100, 1000, '#888888', true);
-            
-            // Bridge planks
             for (let i = 0; i < 10; i++) {
                 const plank = addObject('rectangle', -180 + i * 40, -10, 35, 8, 50, '#8B4513', false);
             }
-            
-            // Connect planks with springs
             for (let i = 1; i < 10; i++) {
                 springs.push(new Spring(
                     objects[1 + i - 1], 
@@ -1241,33 +1276,17 @@
                     40, 0.5, 0.1
                 ));
             }
-            
-            // Add a heavy object to test the bridge
             const weight = addObject('circle', 0, -50, 25, 50, '#ff0000', false);
         });
         
         document.getElementById('preset-catapult').addEventListener('click', () => {
             clearAll();
-            
-            // Base
             const base = addObject('rectangle', -100, 50, 200, 20, 1000, '#888888', true);
-            
-            // Pivot point
             const pivot = addObject('circle', -50, 0, 5, 1000, '#ffff00', true);
-            
-            // Arm
             const arm = addObject('rectangle', -50, -50, 100, 10, 50, '#8B4513', false);
-            
-            // Connect arm to pivot with rope
             ropes.push(new Rope(pivot, arm, 50));
-            
-            // Projectile
             const projectile = addObject('circle', 0, -50, 15, 5, '#ff0000', false);
-            
-            // Connect projectile to arm
             ropes.push(new Rope(arm, projectile, 40));
-            
-            // Give arm initial rotation
             arm.rotation = -Math.PI / 4;
         });
         
@@ -1276,6 +1295,7 @@
             springs = [];
             ropes = [];
             forceVectors = [];
+            connectingObj = null;
         }
         
         function getRandomColor() {
@@ -1289,22 +1309,18 @@
         
         // Main update loop
         function update(dt) {
-            // Update all objects
             for (let obj of objects) {
                 obj.update(dt);
             }
             
-            // Update springs
             for (let spring of springs) {
                 spring.update(dt);
             }
             
-            // Update ropes
             for (let rope of ropes) {
                 rope.update(dt);
             }
             
-            // Check collisions
             if (physics.collisionsEnabled) {
                 for (let i = 0; i < objects.length; i++) {
                     for (let j = i + 1; j < objects.length; j++) {
@@ -1315,7 +1331,6 @@
                 }
             }
             
-            // Keep objects from falling forever
             for (let obj of objects) {
                 if (obj.y > 500 && !obj.fixed) {
                     obj.y = 500;
@@ -1326,7 +1341,6 @@
         
         // Main draw loop
         function draw() {
-            // Clear canvas
             ctx.fillStyle = '#111';
             ctx.fillRect(0, 0, canvas.width, canvas.height);
             
@@ -1377,9 +1391,22 @@
                 obj.draw();
             }
             
+            // Draw connection preview
+            if (mode === 'connect' && connectingObj) {
+                const pos = worldToScreen(connectingObj.x, connectingObj.y);
+                ctx.strokeStyle = '#ffff00';
+                ctx.lineWidth = 2;
+                ctx.setLineDash([5, 5]);
+                ctx.beginPath();
+                ctx.moveTo(pos.x, pos.y);
+                ctx.lineTo(mouse.screenX, mouse.screenY);
+                ctx.stroke();
+                ctx.setLineDash([]);
+            }
+            
             // Update stats
             const elapsed = (Date.now() - startTime) / 1000;
-            statsDisplay.textContent = `FPS: ${fps} | Objects: ${objects.length} | Springs: ${springs.length} | Time: ${elapsed.toFixed(1)}s`;
+            statsDisplay.textContent = `FPS: ${fps} | Objects: ${objects.length} | Springs: ${springs.length} | Rope: ${ropes.length} | Time: ${elapsed.toFixed(1)}s | Mode: ${mode.toUpperCase()}`;
         }
         
         // Main game loop
@@ -1388,7 +1415,6 @@
             const dt = Math.min((now - lastFrameTime) / 1000, 0.1);
             lastFrameTime = now;
             
-            // Calculate FPS
             frameCount++;
             if (now - startTime > 1000) {
                 fps = frameCount;
