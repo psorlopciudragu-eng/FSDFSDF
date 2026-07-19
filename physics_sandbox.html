@@ -3,226 +3,151 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>INTERACTIVE PHYSICS SANDBOX</title>
+    <title>PHYSICS SANDBOX - WORKING</title>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
         
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #0a0e27 0%, #1a1f3a 100%);
+            background: #111;
             color: #fff;
-            overflow: hidden;
             height: 100vh;
+            overflow: hidden;
         }
         
-        #container {
-            display: flex;
-            height: 100vh;
-        }
+        #container { display: flex; height: 100vh; }
         
         #sidebar {
-            width: 300px;
-            background: rgba(0, 0, 0, 0.7);
-            padding: 20px;
-            border-right: 2px solid #4a4a4a;
+            width: 280px;
+            background: #1a1a1a;
+            padding: 15px;
+            border-right: 2px solid #333;
             overflow-y: auto;
         }
         
-        #canvas-container {
-            flex: 1;
-            position: relative;
-        }
+        #canvas-container { flex: 1; position: relative; }
         
         #physics-canvas {
             width: 100%;
             height: 100%;
-            background: #111;
+            background: #0a0a0a;
             display: block;
             cursor: crosshair;
         }
         
         h1 {
-            font-size: 24px;
+            font-size: 20px;
             color: #00ff88;
-            margin-bottom: 20px;
+            margin-bottom: 15px;
             text-align: center;
-            text-shadow: 0 0 10px rgba(0, 255, 136, 0.5);
         }
         
-        h2 {
-            font-size: 16px;
+        h3 {
+            font-size: 13px;
             color: #888;
-            margin: 15px 0 10px 0;
+            margin: 12px 0 8px 0;
             border-bottom: 1px solid #333;
-            padding-bottom: 5px;
+            padding-bottom: 4px;
         }
         
         .control-group {
-            margin-bottom: 20px;
-            background: rgba(255, 255, 255, 0.05);
-            padding: 15px;
-            border-radius: 8px;
-        }
-        
-        .control-group h3 {
-            font-size: 14px;
-            color: #00ff88;
-            margin-bottom: 10px;
+            margin-bottom: 15px;
+            background: #1e1e1e;
+            padding: 12px;
+            border-radius: 6px;
         }
         
         label {
             display: block;
-            margin: 8px 0 5px 0;
-            font-size: 13px;
+            margin: 6px 0 3px 0;
+            font-size: 11px;
             color: #ccc;
         }
         
         input[type="range"] {
             width: 100%;
-            height: 8px;
+            height: 6px;
             -webkit-appearance: none;
             background: #333;
-            border-radius: 4px;
+            border-radius: 3px;
             outline: none;
         }
         
         input[type="range"]::-webkit-slider-thumb {
             -webkit-appearance: none;
-            appearance: none;
-            width: 20px;
-            height: 20px;
+            width: 16px;
+            height: 16px;
             background: #00ff88;
             border-radius: 50%;
             cursor: pointer;
-        }
-        
-        input[type="range"]::-moz-range-thumb {
-            width: 20px;
-            height: 20px;
-            background: #00ff88;
-            border-radius: 50%;
-            cursor: pointer;
-            border: none;
         }
         
         .value-display {
-            font-size: 12px;
-            color: #888;
+            font-size: 10px;
+            color: #666;
             text-align: right;
-            margin-top: 3px;
+            margin-top: 2px;
         }
         
         button {
-            background: linear-gradient(135deg, #00ff88 0%, #00cc6a 100%);
+            background: #00ff88;
             color: #000;
             border: none;
-            padding: 10px 15px;
-            margin: 5px 0;
+            padding: 8px 12px;
+            margin: 4px 0;
             width: 100%;
-            font-size: 14px;
+            font-size: 12px;
             font-weight: bold;
             cursor: pointer;
-            border-radius: 5px;
-            transition: all 0.3s;
-        }
-        
-        button:hover {
-            background: linear-gradient(135deg, #00e67a 0%, #00b35d 100%);
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(0, 255, 136, 0.3);
-        }
-        
-        button:active {
-            transform: translateY(0);
-        }
-        
-        .obj-button {
-            background: linear-gradient(135deg, #666 0%, #444 100%);
-            color: #fff;
-            padding: 8px 12px;
-            margin: 3px 0;
-            width: 100%;
-            font-size: 12px;
-        }
-        
-        .obj-button:hover {
-            background: linear-gradient(135deg, #777 0%, #555 100%);
-        }
-        
-        .info-box {
-            background: rgba(0, 255, 136, 0.1);
-            border: 1px solid #00ff88;
-            padding: 10px;
-            margin: 10px 0;
-            font-size: 12px;
-            line-height: 1.4;
-        }
-        
-        .info-box h4 {
-            color: #00ff88;
-            margin-bottom: 5px;
-        }
-        
-        #stats {
-            position: absolute;
-            top: 10px;
-            left: 10px;
-            background: rgba(0, 0, 0, 0.8);
-            padding: 10px;
-            border-radius: 5px;
-            font-size: 12px;
-            font-family: monospace;
-        }
-        
-        #instructions {
-            position: absolute;
-            bottom: 10px;
-            left: 10px;
-            background: rgba(0, 0, 0, 0.8);
-            padding: 10px;
-            border-radius: 5px;
-            font-size: 11px;
-        }
-        
-        select, input[type="color"], input[type="number"] {
-            width: 100%;
-            padding: 5px;
-            margin: 5px 0;
-            background: #333;
-            color: #fff;
-            border: 1px solid #555;
             border-radius: 4px;
+        }
+        
+        button:hover { background: #00e67a; }
+        button:active { background: #00cc6a; }
+        
+        #mode-selector { display: flex; gap: 4px; margin: 8px 0; }
+        #mode-selector button { flex: 1; font-size: 10px; padding: 5px; }
+        
+        .mode-active { background: #ffff00 !important; color: #000 !important; }
+        
+        select, input[type="color"] {
+            width: 100%;
+            padding: 4px;
+            margin: 4px 0;
+            background: #252525;
+            color: #fff;
+            border: 1px solid #444;
+            border-radius: 3px;
         }
         
         .checkbox-label {
             display: flex;
             align-items: center;
-            margin: 5px 0;
-        }
-        
-        .checkbox-label input {
-            margin-right: 8px;
-        }
-        
-        #mode-selector {
-            display: flex;
-            gap: 5px;
-            margin: 10px 0;
-        }
-        
-        #mode-selector button {
-            flex: 1;
+            margin: 4px 0;
             font-size: 11px;
-            padding: 5px;
         }
         
-        .mode-active {
-            background: #00ff88 !important;
-            color: #000 !important;
+        .checkbox-label input { margin-right: 6px; }
+        
+        #stats {
+            position: absolute;
+            top: 8px;
+            left: 8px;
+            background: rgba(0,0,0,0.7);
+            padding: 6px 10px;
+            border-radius: 4px;
+            font-size: 10px;
+            font-family: monospace;
+        }
+        
+        #instructions {
+            position: absolute;
+            bottom: 8px;
+            left: 8px;
+            background: rgba(0,0,0,0.7);
+            padding: 6px 10px;
+            border-radius: 4px;
+            font-size: 10px;
         }
     </style>
 </head>
@@ -232,812 +157,582 @@
             <h1>🧪 PHYSICS SANDBOX</h1>
             
             <div class="control-group">
-                <h3>🎯 MODE</h3>
+                <h3>MODE</h3>
                 <div id="mode-selector">
                     <button id="mode-add" class="mode-active">ADD</button>
                     <button id="mode-grab">GRAB</button>
                     <button id="mode-connect">CONNECT</button>
                     <button id="mode-delete">DELETE</button>
                 </div>
+                <p id="mode-desc" style="font-size:10px;color:#888;margin-top:5px;">Click to add objects</p>
             </div>
             
             <div class="control-group">
-                <h3>⚡ ENVIRONMENT</h3>
+                <h3>PHYSICS</h3>
                 
-                <label for="gravity-slider">Gravity (m/s²)</label>
-                <input type="range" id="gravity-slider" min="0" max="2" step="0.01" value="0.5">
-                <span class="value-display" id="gravity-value">0.50</span>
+                <label>Gravity</label>
+                <input type="range" id="gravity" min="0" max="2" step="0.01" value="0.5">
+                <span class="value-display" id="gravity-val">0.50</span>
                 
-                <label for="friction-slider">Friction</label>
-                <input type="range" id="friction-slider" min="0" max="1" step="0.01" value="0.98">
-                <span class="value-display" id="friction-value">0.98</span>
+                <label>Friction</label>
+                <input type="range" id="friction" min="0" max="1" step="0.01" value="0.98">
+                <span class="value-display" id="friction-val">0.98</span>
                 
-                <label for="air-resistance-slider">Air Resistance</label>
-                <input type="range" id="air-resistance-slider" min="0" max="1" step="0.01" value="0.995">
-                <span class="value-display" id="air-resistance-value">0.995</span>
+                <label>Bounce</label>
+                <input type="range" id="bounce" min="0" max="1" step="0.01" value="0.7">
+                <span class="value-display" id="bounce-val">0.70</span>
                 
-                <label for="bounce-slider">Bounciness</label>
-                <input type="range" id="bounce-slider" min="0" max="1" step="0.01" value="0.7">
-                <span class="value-display" id="bounce-value">0.70</span>
+                <div class="checkbox-label">
+                    <input type="checkbox" id="gravity-on" checked>
+                    <span>Gravity ON</span>
+                </div>
+                <div class="checkbox-label">
+                    <input type="checkbox" id="collisions-on" checked>
+                    <span>Collisions ON</span>
+                </div>
             </div>
             
             <div class="control-group">
-                <h3>🎨 ADD OBJECTS</h3>
+                <h3>ADD OBJECT</h3>
                 
-                <select id="object-type">
+                <select id="obj-type">
                     <option value="circle">Circle</option>
-                    <option value="rectangle">Rectangle</option>
-                    <option value="triangle">Triangle</option>
+                    <option value="rect">Rectangle</option>
                 </select>
                 
-                <label for="obj-size">Size</label>
-                <input type="range" id="obj-size" min="10" max="100" value="30">
-                <span class="value-display" id="obj-size-value">30</span>
+                <label>Size</label>
+                <input type="range" id="obj-size" min="10" max="80" value="30">
+                <span class="value-display" id="obj-size-val">30</span>
                 
-                <label for="obj-mass">Mass (kg)</label>
-                <input type="range" id="obj-mass" min="1" max="100" value="10">
-                <span class="value-display" id="obj-mass-value">10</span>
+                <label>Mass</label>
+                <input type="range" id="obj-mass" min="1" max="50" value="10">
+                <span class="value-display" id="obj-mass-val">10</span>
                 
-                <label for="obj-color">Color</label>
+                <label>Color</label>
                 <input type="color" id="obj-color" value="#ff0000">
                 
                 <div class="checkbox-label">
                     <input type="checkbox" id="obj-fixed">
-                    <span>Fixed (Static)</span>
+                    <span>Fixed</span>
                 </div>
                 
-                <button id="add-btn">ADD OBJECT AT CENTER</button>
+                <button id="add-center">ADD AT CENTER</button>
             </div>
             
             <div class="control-group">
-                <h3>💥 FORCES & INTERACTIONS</h3>
-                
-                <button id="clear-btn">CLEAR ALL</button>
-                <button id="add-spring-btn">ADD SPRING</button>
-                <button id="add-rope-btn">ADD ROPE</button>
-                
-                <div class="checkbox-label">
-                    <input type="checkbox" id="toggle-gravity" checked>
-                    <span>Gravity Enabled</span>
-                </div>
-                
-                <div class="checkbox-label">
-                    <input type="checkbox" id="toggle-collisions" checked>
-                    <span>Collisions Enabled</span>
-                </div>
-                
-                <div class="checkbox-label">
-                    <input type="checkbox" id="toggle-friction" checked>
-                    <span>Friction Enabled</span>
-                </div>
+                <h3>ACTIONS</h3>
+                <button id="clear-all">CLEAR ALL</button>
+                <button id="preset-pendulum">Pendulum</button>
+                <button id="preset-domino">Domino</button>
+                <button id="preset-orbit">Orbit</button>
             </div>
             
             <div class="control-group">
-                <h3>🎬 PRESETS</h3>
-                
-                <button id="preset-pendulum">PENDULUM</button>
-                <button id="preset-domino">DOMINO EFFECT</button>
-                <button id="preset-orbit">ORBITING BODIES</button>
-                <button id="preset-bridge">BRIDGE</button>
-                <button id="preset-catapult">CATAPULT</button>
-            </div>
-            
-            <div class="control-group">
-                <h3>ℹ️ HOW TO USE</h3>
-                
-                <div class="info-box">
-                    <h4>🖱️ MOUSE CONTROLS</h4>
-                    <p id="mode-instructions">Click anywhere to ADD objects</p>
-                    <p>Scroll: Zoom in/out</p>
-                    <p>Right-click: Pan camera</p>
-                </div>
+                <h3>CONTROLS</h3>
+                <p style="font-size:10px;color:#888;">
+                    LEFT: Add/Grab/Connect/Delete<br>
+                    RIGHT: Pan camera<br>
+                    SCROLL: Zoom<br>
+                    SHIFT: Multi-select
+                </p>
             </div>
         </div>
         
         <div id="canvas-container">
             <canvas id="physics-canvas"></canvas>
-            <div id="stats">FPS: 60 | Objects: 0 | Time: 0s</div>
+            <div id="stats">FPS: 60 | Objects: 0</div>
         </div>
     </div>
 
     <script>
-        // Canvas setup
+        // ========== CANVAS SETUP ==========
         const canvas = document.getElementById('physics-canvas');
         const ctx = canvas.getContext('2d');
         const statsDisplay = document.getElementById('stats');
-        const modeInstructions = document.getElementById('mode-instructions');
+        const modeDesc = document.getElementById('mode-desc');
         
-        // Set canvas size
-        function resizeCanvas() {
+        let width = canvas.width;
+        let height = canvas.height;
+        
+        function resize() {
             const container = document.getElementById('canvas-container');
-            canvas.width = container.clientWidth;
-            canvas.height = container.clientHeight;
+            width = canvas.width = container.clientWidth;
+            height = canvas.height = container.clientHeight;
         }
+        window.addEventListener('resize', resize);
+        resize();
         
-        window.addEventListener('resize', resizeCanvas);
-        resizeCanvas();
-        
-        // Physics parameters
-        let physics = {
-            gravity: 0.5,
-            friction: 0.98,
-            airResistance: 0.995,
-            bounciness: 0.7,
-            gravityEnabled: true,
-            collisionsEnabled: true,
-            frictionEnabled: true
-        };
-        
-        // Camera
+        // ========== CAMERA ==========
         const camera = {
             x: 0,
             y: 0,
             zoom: 1
         };
         
-        // Mouse
+        // ========== MOUSE ==========
         const mouse = {
-            x: 0,
-            y: 0,
-            screenX: 0,
-            screenY: 0,
+            x: 0, y: 0,
+            screenX: 0, screenY: 0,
             down: false,
             rightDown: false,
-            shiftDown: false,
-            draggedObject: null,
+            draggedObj: null,
             dragOffsetX: 0,
             dragOffsetY: 0,
             lastX: 0,
             lastY: 0
         };
         
-        // Interaction mode
-        let mode = 'add'; // 'add', 'grab', 'connect', 'delete'
-        
-        // Objects array
-        let objects = [];
-        let springs = [];
-        let ropes = [];
-        let forceVectors = [];
-        
-        // Connection state
-        let connectingObj = null;
-        
-        // Time tracking
-        let startTime = Date.now();
-        let lastFrameTime = Date.now();
-        let frameCount = 0;
-        let fps = 60;
-        
-        // Get canvas position
-        function getCanvasPosition() {
-            const rect = canvas.getBoundingClientRect();
+        // Convert screen to world
+        function toWorld(sx, sy) {
             return {
-                x: rect.left + window.scrollX,
-                y: rect.top + window.scrollY
+                x: (sx - width/2) / camera.zoom + camera.x,
+                y: (sy - height/2) / camera.zoom + camera.y
             };
         }
         
-        // Convert screen to world coordinates
-        function screenToWorld(screenX, screenY) {
-            const pos = getCanvasPosition();
-            const worldX = (screenX - pos.x - canvas.width/2) / camera.zoom + camera.x;
-            const worldY = (screenY - pos.y - canvas.height/2) / camera.zoom + camera.y;
-            return { x: worldX, y: worldY };
+        // Convert world to screen
+        function toScreen(wx, wy) {
+            return {
+                x: (wx - camera.x) * camera.zoom + width/2,
+                y: (wy - camera.y) * camera.zoom + height/2
+            };
         }
         
-        // Convert world to screen coordinates
-        function worldToScreen(worldX, worldY) {
-            const screenX = (worldX - camera.x) * camera.zoom + canvas.width/2;
-            const screenY = (worldY - camera.y) * camera.zoom + canvas.height/2;
-            return { x: screenX, y: screenY };
-        }
+        // ========== PHYSICS ==========
+        const physics = {
+            gravity: 0.5,
+            friction: 0.98,
+            bounce: 0.7,
+            gravityOn: true,
+            collisionsOn: true
+        };
         
-        // Object types
+        // ========== MODE ==========
+        let mode = 'add';
+        let connectObj1 = null;
+        
+        // ========== OBJECTS ==========
+        let objects = [];
+        let springs = [];
+        
         class Circle {
-            constructor(x, y, radius, mass, color, fixed = false) {
-                this.x = x;
-                this.y = y;
-                this.radius = radius;
-                this.mass = mass;
-                this.color = color;
-                this.fixed = fixed;
-                this.vx = 0;
-                this.vy = 0;
-                this.ax = 0;
-                this.ay = 0;
-                this.angularVelocity = 0;
-                this.rotation = 0;
+            constructor(x, y, r, mass, color, fixed) {
+                this.x = x; this.y = y;
+                this.r = r; this.mass = mass;
+                this.color = color; this.fixed = fixed;
+                this.vx = 0; this.vy = 0;
                 this.type = 'circle';
-                this.id = Date.now() + Math.random();
             }
             
             update(dt) {
                 if (this.fixed) return;
                 
-                this.vx += this.ax * dt;
-                this.vy += this.ay * dt;
+                if (physics.gravityOn) this.vy += physics.gravity * dt;
                 
-                if (physics.frictionEnabled) {
-                    this.vx *= physics.friction;
-                    this.vy *= physics.friction;
-                }
-                
-                this.vx *= physics.airResistance;
-                this.vy *= physics.airResistance;
-                
-                if (physics.gravityEnabled) {
-                    this.vy += physics.gravity * dt;
-                }
+                this.vx *= physics.friction;
+                this.vy *= physics.friction;
                 
                 this.x += this.vx * dt;
                 this.y += this.vy * dt;
-                this.rotation += this.angularVelocity * dt;
-                
-                this.ax = 0;
-                this.ay = 0;
             }
             
             draw() {
-                ctx.save();
-                const screenPos = worldToScreen(this.x, this.y);
-                ctx.translate(screenPos.x, screenPos.y);
-                ctx.rotate(this.rotation);
-                
+                const s = toScreen(this.x, this.y);
                 ctx.fillStyle = this.color;
                 ctx.beginPath();
-                ctx.arc(0, 0, this.radius * camera.zoom, 0, Math.PI * 2);
+                ctx.arc(s.x, s.y, this.r * camera.zoom, 0, Math.PI*2);
                 ctx.fill();
                 
                 ctx.strokeStyle = this.fixed ? '#ffff00' : '#ffffff';
-                ctx.lineWidth = 2;
+                ctx.lineWidth = 1;
                 ctx.beginPath();
-                ctx.arc(0, 0, this.radius * camera.zoom, 0, Math.PI * 2);
+                ctx.arc(s.x, s.y, this.r * camera.zoom, 0, Math.PI*2);
                 ctx.stroke();
-                
-                if (!this.fixed && (Math.abs(this.vx) + Math.abs(this.vy) > 0.1)) {
-                    ctx.strokeStyle = '#00ffff';
-                    ctx.lineWidth = 1;
-                    ctx.beginPath();
-                    ctx.moveTo(0, 0);
-                    ctx.lineTo(this.vx * 5 * camera.zoom, this.vy * 5 * camera.zoom);
-                    ctx.stroke();
-                }
-                
-                ctx.restore();
             }
             
-            containsPoint(x, y) {
-                const dx = x - this.x;
-                const dy = y - this.y;
-                return dx * dx + dy * dy <= this.radius * this.radius;
-            }
-            
-            getBounds() {
-                return {
-                    x: this.x - this.radius,
-                    y: this.y - this.radius,
-                    width: this.radius * 2,
-                    height: this.radius * 2
-                };
+            contains(px, py) {
+                const dx = px - this.x;
+                const dy = py - this.y;
+                return dx*dx + dy*dy <= this.r*this.r;
             }
         }
         
-        class Rectangle {
-            constructor(x, y, width, height, mass, color, fixed = false) {
-                this.x = x;
-                this.y = y;
-                this.width = width;
-                this.height = height;
-                this.mass = mass;
-                this.color = color;
+        class Rect {
+            constructor(x, y, w, h, mass, color, fixed) {
+                this.x = x; this.y = y;
+                this.w = w; this.h = h;
+                this.mass = mass; this.color = color;
                 this.fixed = fixed;
-                this.vx = 0;
-                this.vy = 0;
-                this.ax = 0;
-                this.ay = 0;
-                this.angularVelocity = 0;
-                this.rotation = 0;
-                this.type = 'rectangle';
-                this.id = Date.now() + Math.random();
+                this.vx = 0; this.vy = 0;
+                this.type = 'rect';
             }
             
             update(dt) {
                 if (this.fixed) return;
                 
-                this.vx += this.ax * dt;
-                this.vy += this.ay * dt;
+                if (physics.gravityOn) this.vy += physics.gravity * dt;
                 
-                if (physics.frictionEnabled) {
-                    this.vx *= physics.friction;
-                    this.vy *= physics.friction;
-                }
-                
-                this.vx *= physics.airResistance;
-                this.vy *= physics.airResistance;
-                
-                if (physics.gravityEnabled) {
-                    this.vy += physics.gravity * dt;
-                }
+                this.vx *= physics.friction;
+                this.vy *= physics.friction;
                 
                 this.x += this.vx * dt;
                 this.y += this.vy * dt;
-                this.rotation += this.angularVelocity * dt;
-                
-                this.ax = 0;
-                this.ay = 0;
             }
             
             draw() {
-                ctx.save();
-                const screenPos = worldToScreen(this.x, this.y);
-                ctx.translate(screenPos.x, screenPos.y);
-                ctx.rotate(this.rotation);
+                const s = toScreen(this.x, this.y);
+                const sw = this.w * camera.zoom;
+                const sh = this.h * camera.zoom;
                 
                 ctx.fillStyle = this.color;
-                ctx.fillRect(
-                    -this.width/2 * camera.zoom,
-                    -this.height/2 * camera.zoom,
-                    this.width * camera.zoom,
-                    this.height * camera.zoom
-                );
+                ctx.fillRect(s.x - sw/2, s.y - sh/2, sw, sh);
                 
                 ctx.strokeStyle = this.fixed ? '#ffff00' : '#ffffff';
-                ctx.lineWidth = 2;
-                ctx.strokeRect(
-                    -this.width/2 * camera.zoom,
-                    -this.height/2 * camera.zoom,
-                    this.width * camera.zoom,
-                    this.height * camera.zoom
-                );
-                
-                if (!this.fixed && (Math.abs(this.vx) + Math.abs(this.vy) > 0.1)) {
-                    ctx.strokeStyle = '#00ffff';
-                    ctx.lineWidth = 1;
-                    ctx.beginPath();
-                    ctx.moveTo(0, 0);
-                    ctx.lineTo(this.vx * 5 * camera.zoom, this.vy * 5 * camera.zoom);
-                    ctx.stroke();
-                }
-                
-                ctx.restore();
+                ctx.lineWidth = 1;
+                ctx.strokeRect(s.x - sw/2, s.y - sh/2, sw, sh);
             }
             
-            containsPoint(x, y) {
-                const cos = Math.cos(-this.rotation);
-                const sin = Math.sin(-this.rotation);
-                const localX = (x - this.x) * cos - (y - this.y) * sin;
-                const localY = (x - this.x) * sin + (y - this.y) * cos;
-                
-                return Math.abs(localX) <= this.width/2 && Math.abs(localY) <= this.height/2;
-            }
-            
-            getBounds() {
-                const cos = Math.cos(this.rotation);
-                const sin = Math.sin(this.rotation);
-                const halfW = this.width / 2;
-                const halfH = this.height / 2;
-                
-                const corners = [
-                    { x: this.x + halfW * cos - halfH * sin, y: this.y + halfW * sin + halfH * cos },
-                    { x: this.x - halfW * cos - halfH * sin, y: this.y - halfW * sin + halfH * cos },
-                    { x: this.x - halfW * cos + halfH * sin, y: this.y - halfW * sin - halfH * cos },
-                    { x: this.x + halfW * cos + halfH * sin, y: this.y + halfW * sin - halfH * cos }
-                ];
-                
-                let minX = Infinity, maxX = -Infinity, minY = Infinity, maxY = -Infinity;
-                for (const corner of corners) {
-                    minX = Math.min(minX, corner.x);
-                    maxX = Math.max(maxX, corner.x);
-                    minY = Math.min(minY, corner.y);
-                    maxY = Math.max(maxY, corner.y);
-                }
-                
-                return { x: minX, y: minY, width: maxX - minX, height: maxY - minY };
+            contains(px, py) {
+                return px >= this.x - this.w/2 && px <= this.x + this.w/2 &&
+                       py >= this.y - this.h/2 && py <= this.y + this.h/2;
             }
         }
         
-        class Triangle {
-            constructor(x, y, size, mass, color, fixed = false) {
-                this.x = x;
-                this.y = y;
-                this.size = size;
-                this.mass = mass;
-                this.color = color;
-                this.fixed = fixed;
-                this.vx = 0;
-                this.vy = 0;
-                this.ax = 0;
-                this.ay = 0;
-                this.angularVelocity = 0;
-                this.rotation = 0;
-                this.type = 'triangle';
-                this.id = Date.now() + Math.random();
+        // ========== COLLISION ==========
+        function checkCollision(a, b) {
+            if (a.fixed && b.fixed) return false;
+            
+            if (a.type === 'circle' && b.type === 'circle') {
+                const dx = b.x - a.x;
+                const dy = b.y - a.y;
+                const dist = Math.sqrt(dx*dx + dy*dy);
+                return dist < a.r + b.r;
             }
             
-            update(dt) {
-                if (this.fixed) return;
-                
-                this.vx += this.ax * dt;
-                this.vy += this.ay * dt;
-                
-                if (physics.frictionEnabled) {
-                    this.vx *= physics.friction;
-                    this.vy *= physics.friction;
-                }
-                
-                this.vx *= physics.airResistance;
-                this.vy *= physics.airResistance;
-                
-                if (physics.gravityEnabled) {
-                    this.vy += physics.gravity * dt;
-                }
-                
-                this.x += this.vx * dt;
-                this.y += this.vy * dt;
-                this.rotation += this.angularVelocity * dt;
-                
-                this.ax = 0;
-                this.ay = 0;
+            if (a.type === 'rect' && b.type === 'rect') {
+                return !(a.x + a.w/2 < b.x - b.w/2 ||
+                        a.x - a.w/2 > b.x + b.w/2 ||
+                        a.y + a.h/2 < b.y - b.h/2 ||
+                        a.y - a.h/2 > b.y + b.h/2);
             }
             
-            draw() {
-                ctx.save();
-                const screenPos = worldToScreen(this.x, this.y);
-                ctx.translate(screenPos.x, screenPos.y);
-                ctx.rotate(this.rotation);
+            // Circle-rect collision
+            if ((a.type === 'circle' && b.type === 'rect') || (a.type === 'rect' && b.type === 'circle')) {
+                const circle = a.type === 'circle' ? a : b;
+                const rect = a.type === 'circle' ? b : a;
                 
-                ctx.fillStyle = this.color;
-                ctx.beginPath();
-                ctx.moveTo(0, -this.size/2 * camera.zoom);
-                ctx.lineTo(-this.size/2 * camera.zoom, this.size/2 * camera.zoom);
-                ctx.lineTo(this.size/2 * camera.zoom, this.size/2 * camera.zoom);
-                ctx.closePath();
-                ctx.fill();
+                // Find closest point on rect to circle
+                let closestX = Math.max(rect.x - rect.w/2, Math.min(circle.x, rect.x + rect.w/2));
+                let closestY = Math.max(rect.y - rect.h/2, Math.min(circle.y, rect.y + rect.h/2));
                 
-                ctx.strokeStyle = this.fixed ? '#ffff00' : '#ffffff';
-                ctx.lineWidth = 2;
-                ctx.beginPath();
-                ctx.moveTo(0, -this.size/2 * camera.zoom);
-                ctx.lineTo(-this.size/2 * camera.zoom, this.size/2 * camera.zoom);
-                ctx.lineTo(this.size/2 * camera.zoom, this.size/2 * camera.zoom);
-                ctx.closePath();
-                ctx.stroke();
-                
-                if (!this.fixed && (Math.abs(this.vx) + Math.abs(this.vy) > 0.1)) {
-                    ctx.strokeStyle = '#00ffff';
-                    ctx.lineWidth = 1;
-                    ctx.beginPath();
-                    ctx.moveTo(0, 0);
-                    ctx.lineTo(this.vx * 5 * camera.zoom, this.vy * 5 * camera.zoom);
-                    ctx.stroke();
-                }
-                
-                ctx.restore();
+                const dx = circle.x - closestX;
+                const dy = circle.y - closestY;
+                return dx*dx + dy*dy < circle.r*circle.r;
             }
             
-            containsPoint(x, y) {
-                const cos = Math.cos(-this.rotation);
-                const sin = Math.sin(-this.rotation);
-                const localX = (x - this.x) * cos - (y - this.y) * sin;
-                const localY = (x - this.x) * sin + (y - this.y) * cos;
-                
-                const h = this.size / 2;
-                return (
-                    localY >= -h &&
-                    localY <= h &&
-                    Math.abs(localX) <= h - Math.abs(localY)
-                );
-            }
-            
-            getBounds() {
-                const cos = Math.cos(this.rotation);
-                const sin = Math.sin(this.rotation);
-                const h = this.size / 2;
-                
-                const corners = [
-                    { x: this.x, y: this.y - h },
-                    { x: this.x - h * cos - h * sin, y: this.y + h * sin - h * cos },
-                    { x: this.x + h * cos - h * sin, y: this.y + h * sin + h * cos }
-                ];
-                
-                let minX = Infinity, maxX = -Infinity, minY = Infinity, maxY = -Infinity;
-                for (const corner of corners) {
-                    minX = Math.min(minX, corner.x);
-                    maxX = Math.max(maxX, corner.x);
-                    minY = Math.min(minY, corner.y);
-                    maxY = Math.max(maxY, corner.y);
-                }
-                
-                return { x: minX, y: minY, width: maxX - minX, height: maxY - minY };
-            }
+            return false;
         }
         
-        class Spring {
-            constructor(obj1, obj2, length, stiffness, damping) {
-                this.obj1 = obj1;
-                this.obj2 = obj2;
-                this.naturalLength = length;
-                this.stiffness = stiffness;
-                this.damping = damping;
-                this.id = Date.now() + Math.random();
-            }
+        function resolveCollision(a, b) {
+            if (a.fixed && b.fixed) return;
             
-            update(dt) {
-                const dx = this.obj2.x - this.obj1.x;
-                const dy = this.obj2.y - this.obj1.y;
-                const distance = Math.sqrt(dx * dx + dy * dy);
+            if (a.type === 'circle' && b.type === 'circle') {
+                const dx = b.x - a.x;
+                const dy = b.y - a.y;
+                const dist = Math.sqrt(dx*dx + dy*dy);
+                const overlap = a.r + b.r - dist;
                 
-                if (distance === 0) return;
+                if (overlap <= 0) return;
                 
-                const force = this.stiffness * (distance - this.naturalLength);
-                const dampingForce = this.damping * ((this.obj2.vx - this.obj1.vx) * dx + (this.obj2.vy - this.obj1.vy) * dy) / distance;
-                const totalForce = force + dampingForce;
+                // Position correction
+                const nx = dx / dist;
+                const ny = dy / dist;
                 
-                const fx = (dx / distance) * totalForce;
-                const fy = (dy / distance) * totalForce;
-                
-                if (!this.obj1.fixed) {
-                    this.obj1.ax += fx / this.obj1.mass;
-                    this.obj1.ay += fy / this.obj1.mass;
+                if (!a.fixed && !b.fixed) {
+                    a.x -= nx * overlap/2;
+                    a.y -= ny * overlap/2;
+                    b.x += nx * overlap/2;
+                    b.y += ny * overlap/2;
+                } else if (!a.fixed) {
+                    a.x -= nx * overlap;
+                    a.y -= ny * overlap;
+                } else if (!b.fixed) {
+                    b.x += nx * overlap;
+                    b.y += ny * overlap;
                 }
                 
-                if (!this.obj2.fixed) {
-                    this.obj2.ax -= fx / this.obj2.mass;
-                    this.obj2.ay -= fy / this.obj2.mass;
+                // Velocity response
+                const rvx = b.vx - a.vx;
+                const rvy = b.vy - a.vy;
+                const velAlongNormal = rvx * nx + rvy * ny;
+                
+                if (velAlongNormal > 0) return;
+                
+                const j = -(1 + physics.bounce) * velAlongNormal;
+                const impulse = j / (a.fixed ? b.mass : (b.fixed ? a.mass : a.mass + b.mass));
+                
+                if (!a.fixed) {
+                    a.vx -= impulse * nx * (b.fixed ? 1 : b.mass);
+                    a.vy -= impulse * ny * (b.fixed ? 1 : b.mass);
                 }
-            }
-            
-            draw() {
-                const pos1 = worldToScreen(this.obj1.x, this.obj1.y);
-                const pos2 = worldToScreen(this.obj2.x, this.obj2.y);
-                
-                ctx.strokeStyle = '#ffff00';
-                ctx.lineWidth = 2;
-                ctx.beginPath();
-                ctx.moveTo(pos1.x, pos1.y);
-                ctx.lineTo(pos2.x, pos2.y);
-                ctx.stroke();
-            }
-        }
-        
-        class Rope {
-            constructor(obj1, obj2, maxLength) {
-                this.obj1 = obj1;
-                this.obj2 = obj2;
-                this.maxLength = maxLength;
-                this.id = Date.now() + Math.random();
-            }
-            
-            update(dt) {
-                const dx = this.obj2.x - this.obj1.x;
-                const dy = this.obj2.y - this.obj1.y;
-                const distance = Math.sqrt(dx * dx + dy * dy);
-                
-                if (distance > this.maxLength) {
-                    const correction = (distance - this.maxLength) / distance;
-                    
-                    if (!this.obj1.fixed && !this.obj2.fixed) {
-                        const moveX = dx * correction / 2;
-                        const moveY = dy * correction / 2;
-                        this.obj1.x += moveX;
-                        this.obj1.y += moveY;
-                        this.obj2.x -= moveX;
-                        this.obj2.y -= moveY;
-                    } else if (!this.obj1.fixed) {
-                        this.obj1.x += dx * correction;
-                        this.obj1.y += dy * correction;
-                    } else if (!this.obj2.fixed) {
-                        this.obj2.x -= dx * correction;
-                        this.obj2.y -= dy * correction;
-                    }
+                if (!b.fixed) {
+                    b.vx += impulse * nx * (a.fixed ? 1 : a.mass);
+                    b.vy += impulse * ny * (a.fixed ? 1 : a.mass);
                 }
             }
             
-            draw() {
-                const pos1 = worldToScreen(this.obj1.x, this.obj1.y);
-                const pos2 = worldToScreen(this.obj2.x, this.obj2.y);
+            // Rect-rect collision
+            if (a.type === 'rect' && b.type === 'rect') {
+                const overlapX = Math.min(a.x + a.w/2, b.x + b.w/2) - Math.max(a.x - a.w/2, b.x - b.w/2);
+                const overlapY = Math.min(a.y + a.h/2, b.y + b.h/2) - Math.max(a.y - a.h/2, b.y - b.h/2);
                 
-                ctx.strokeStyle = '#ff8800';
-                ctx.lineWidth = 2;
-                ctx.beginPath();
-                ctx.moveTo(pos1.x, pos1.y);
-                ctx.lineTo(pos2.x, pos2.y);
-                ctx.stroke();
-            }
-        }
-        
-        // Check collision between two objects
-        function checkCollision(obj1, obj2) {
-            if (obj1.fixed && obj2.fixed) return false;
-            
-            const bounds1 = obj1.getBounds();
-            const bounds2 = obj2.getBounds();
-            
-            if (bounds1.x + bounds1.width < bounds2.x ||
-                bounds1.x > bounds2.x + bounds2.width ||
-                bounds1.y + bounds1.height < bounds2.y ||
-                bounds1.y > bounds2.y + bounds2.height) {
-                return false;
-            }
-            
-            if (obj1.type === 'circle' && obj2.type === 'circle') {
-                const dx = obj2.x - obj1.x;
-                const dy = obj2.y - obj1.y;
-                const distance = Math.sqrt(dx * dx + dy * dy);
-                return distance < obj1.radius + obj2.radius;
-            }
-            
-            return true;
-        }
-        
-        // Resolve collision
-        function resolveCollision(obj1, obj2) {
-            if (obj1.fixed && obj2.fixed) return;
-            
-            const bounds1 = obj1.getBounds();
-            const bounds2 = obj2.getBounds();
-            
-            const overlapX = Math.min(bounds1.x + bounds1.width, bounds2.x + bounds2.width) - 
-                            Math.max(bounds1.x, bounds2.x);
-            const overlapY = Math.min(bounds1.y + bounds1.height, bounds2.y + bounds2.height) - 
-                            Math.max(bounds1.y, bounds2.y);
-            
-            let nx = 0, ny = 0;
-            if (overlapX < overlapY) {
-                if (bounds1.x < bounds2.x) {
-                    nx = -1;
+                let nx = 0, ny = 0;
+                if (overlapX < overlapY) {
+                    nx = a.x < b.x ? -1 : 1;
                 } else {
-                    nx = 1;
+                    ny = a.y < b.y ? -1 : 1;
                 }
-            } else {
-                if (bounds1.y < bounds2.y) {
-                    ny = -1;
-                } else {
-                    ny = 1;
+                
+                if (!a.fixed && !b.fixed) {
+                    a.x -= nx * overlapX/2;
+                    a.y -= ny * overlapY/2;
+                    b.x += nx * overlapX/2;
+                    b.y += ny * overlapY/2;
+                } else if (!a.fixed) {
+                    a.x -= nx * overlapX;
+                    a.y -= ny * overlapY;
+                } else if (!b.fixed) {
+                    b.x += nx * overlapX;
+                    b.y += ny * overlapY;
                 }
-            }
-            
-            const rvx = obj2.vx - obj1.vx;
-            const rvy = obj2.vy - obj1.vy;
-            const velocityAlongNormal = rvx * nx + rvy * ny;
-            
-            if (velocityAlongNormal > 0) return;
-            
-            const e = physics.bounciness;
-            const j = -(1 + e) * velocityAlongNormal;
-            const totalMass = obj1.fixed ? obj2.mass : (obj2.fixed ? obj1.mass : obj1.mass + obj2.mass);
-            const impulse = j / totalMass;
-            
-            if (!obj1.fixed) {
-                obj1.vx -= impulse * nx * obj2.mass;
-                obj1.vy -= impulse * ny * obj2.mass;
-            }
-            if (!obj2.fixed) {
-                obj2.vx += impulse * nx * obj1.mass;
-                obj2.vy += impulse * ny * obj1.mass;
-            }
-            
-            const correction = 0.2;
-            if (!obj1.fixed && !obj2.fixed) {
-                obj1.x -= nx * overlapX * correction / 2;
-                obj1.y -= ny * overlapY * correction / 2;
-                obj2.x += nx * overlapX * correction / 2;
-                obj2.y += ny * overlapY * correction / 2;
-            } else if (!obj1.fixed) {
-                obj1.x -= nx * overlapX * correction;
-                obj1.y -= ny * overlapY * correction;
-            } else if (!obj2.fixed) {
-                obj2.x += nx * overlapX * correction;
-                obj2.y += ny * overlapY * correction;
+                
+                const rvx = b.vx - a.vx;
+                const rvy = b.vy - a.vy;
+                const velAlongNormal = rvx * nx + rvy * ny;
+                
+                if (velAlongNormal > 0) return;
+                
+                const j = -(1 + physics.bounce) * velAlongNormal;
+                const impulse = j / (a.fixed ? b.mass : (b.fixed ? a.mass : a.mass + b.mass));
+                
+                if (!a.fixed) {
+                    a.vx -= impulse * nx * (b.fixed ? 1 : b.mass);
+                    a.vy -= impulse * ny * (b.fixed ? 1 : b.mass);
+                }
+                if (!b.fixed) {
+                    b.vx += impulse * nx * (a.fixed ? 1 : a.mass);
+                    b.vy += impulse * ny * (a.fixed ? 1 : a.mass);
+                }
             }
         }
         
-        // Add object
-        function addObject(type, x, y, size, mass, color, fixed) {
+        // ========== ADD OBJECT ==========
+        function addObject(type, x, y) {
+            const size = parseInt(document.getElementById('obj-size').value);
+            const mass = parseInt(document.getElementById('obj-mass').value);
+            const color = document.getElementById('obj-color').value;
+            const fixed = document.getElementById('obj-fixed').checked;
+            
             let obj;
-            switch (type) {
-                case 'circle':
-                    obj = new Circle(x, y, size/2, mass, color, fixed);
-                    break;
-                case 'rectangle':
-                    obj = new Rectangle(x, y, size, size/2, mass, color, fixed);
-                    break;
-                case 'triangle':
-                    obj = new Triangle(x, y, size, mass, color, fixed);
-                    break;
+            if (type === 'circle') {
+                obj = new Circle(x, y, size/2, mass, color, fixed);
+            } else {
+                obj = new Rect(x, y, size, size/2, mass, color, fixed);
             }
             objects.push(obj);
             return obj;
         }
         
-        // Find object at position
         function findObjectAt(x, y) {
             for (let i = objects.length - 1; i >= 0; i--) {
-                if (objects[i].containsPoint(x, y)) {
+                if (objects[i].contains(x, y)) {
                     return objects[i];
                 }
             }
             return null;
         }
         
-        // Mouse event handlers
-        canvas.addEventListener('mousedown', (e) => {
-            const pos = getCanvasPosition();
-            mouse.screenX = e.clientX - pos.x;
-            mouse.screenY = e.clientY - pos.y;
-            const worldPos = screenToWorld(mouse.screenX, mouse.screenY);
-            mouse.x = worldPos.x;
-            mouse.y = worldPos.y;
+        function clearAll() {
+            objects = [];
+            springs = [];
+            connectObj1 = null;
+        }
+        
+        // ========== PRESETS ==========
+        function makePendulum() {
+            clearAll();
+            const pivot = addObject('circle', 0, -100);
+            pivot.fixed = true;
+            const bob = addObject('circle', 0, -50);
+            bob.vx = 3;
+        }
+        
+        function makeDomino() {
+            clearAll();
+            for (let i = 0; i < 8; i++) {
+                const d = addObject('rect', i * 30 - 120, -100);
+                d.w = 8; d.h = 40;
+            }
+            const ball = addObject('circle', -150, -80);
+            ball.vx = 8;
+        }
+        
+        function makeOrbit() {
+            clearAll();
+            const center = addObject('circle', 0, 0);
+            center.fixed = true;
+            center.r = 40;
+            center.mass = 1000;
+            
+            for (let i = 0; i < 4; i++) {
+                const angle = (i / 4) * Math.PI * 2;
+                const dist = 120;
+                const p = addObject('circle', Math.cos(angle) * dist, Math.sin(angle) * dist);
+                p.r = 15;
+                const speed = Math.sqrt(1000 / dist) * 0.8;
+                p.vx = -Math.sin(angle) * speed;
+                p.vy = Math.cos(angle) * speed;
+            }
+        }
+        
+        // ========== EVENT HANDLERS ==========
+        
+        // Mode buttons
+        document.getElementById('mode-add').addEventListener('click', () => {
+            mode = 'add';
+            updateModeButtons();
+            modeDesc.textContent = 'Click to add objects';
+        });
+        document.getElementById('mode-grab').addEventListener('click', () => {
+            mode = 'grab';
+            updateModeButtons();
+            modeDesc.textContent = 'Click and drag to move';
+        });
+        document.getElementById('mode-connect').addEventListener('click', () => {
+            mode = 'connect';
+            updateModeButtons();
+            modeDesc.textContent = 'Click 2 objects to connect';
+            connectObj1 = null;
+        });
+        document.getElementById('mode-delete').addEventListener('click', () => {
+            mode = 'delete';
+            updateModeButtons();
+            modeDesc.textContent = 'Click to delete';
+        });
+        
+        function updateModeButtons() {
+            document.querySelectorAll('#mode-selector button').forEach(b => b.classList.remove('mode-active'));
+            document.getElementById(`mode-${mode}`).classList.add('mode-active');
+        }
+        
+        // Sliders
+        document.getElementById('gravity').addEventListener('input', e => {
+            physics.gravity = parseFloat(e.target.value);
+            document.getElementById('gravity-val').textContent = physics.gravity.toFixed(2);
+        });
+        document.getElementById('friction').addEventListener('input', e => {
+            physics.friction = parseFloat(e.target.value);
+            document.getElementById('friction-val').textContent = physics.friction.toFixed(2);
+        });
+        document.getElementById('bounce').addEventListener('input', e => {
+            physics.bounce = parseFloat(e.target.value);
+            document.getElementById('bounce-val').textContent = physics.bounce.toFixed(2);
+        });
+        document.getElementById('obj-size').addEventListener('input', e => {
+            document.getElementById('obj-size-val').textContent = e.target.value;
+        });
+        document.getElementById('obj-mass').addEventListener('input', e => {
+            document.getElementById('obj-mass-val').textContent = e.target.value;
+        });
+        
+        // Checkboxes
+        document.getElementById('gravity-on').addEventListener('change', e => {
+            physics.gravityOn = e.target.checked;
+        });
+        document.getElementById('collisions-on').addEventListener('change', e => {
+            physics.collisionsOn = e.target.checked;
+        });
+        
+        // Action buttons
+        document.getElementById('add-center').addEventListener('click', () => {
+            addObject(document.getElementById('obj-type').value, 0, 0);
+        });
+        document.getElementById('clear-all').addEventListener('click', clearAll);
+        document.getElementById('preset-pendulum').addEventListener('click', makePendulum);
+        document.getElementById('preset-domino').addEventListener('click', makeDomino);
+        document.getElementById('preset-orbit').addEventListener('click', makeOrbit);
+        
+        // Canvas events
+        canvas.addEventListener('mousedown', e => {
+            const rect = canvas.getBoundingClientRect();
+            mouse.screenX = e.clientX - rect.left;
+            mouse.screenY = e.clientY - rect.top;
+            const world = toWorld(mouse.screenX, mouse.screenY);
+            mouse.x = world.x;
+            mouse.y = world.y;
             mouse.lastX = mouse.x;
             mouse.lastY = mouse.y;
             
             if (e.button === 2) {
-                // Right click - pan camera
                 mouse.rightDown = true;
                 return;
             }
             
             if (e.button === 0) {
-                // Left click
                 mouse.down = true;
                 
-                switch (mode) {
-                    case 'add':
-                        // Add object at click position
-                        const type = document.getElementById('object-type').value;
-                        const size = parseInt(document.getElementById('obj-size').value);
-                        const mass = parseInt(document.getElementById('obj-mass').value);
-                        const color = document.getElementById('obj-color').value;
-                        const fixed = document.getElementById('obj-fixed').checked;
-                        addObject(type, mouse.x, mouse.y, size, mass, color, fixed);
-                        break;
-                        
-                    case 'grab':
-                        // Grab object
-                        const obj = findObjectAt(mouse.x, mouse.y);
-                        if (obj) {
-                            mouse.draggedObject = obj;
-                            mouse.dragOffsetX = obj.x - mouse.x;
-                            mouse.dragOffsetY = obj.y - mouse.y;
-                            mouse.draggedObject.vx = 0;
-                            mouse.draggedObject.vy = 0;
+                if (mode === 'add') {
+                    addObject(document.getElementById('obj-type').value, mouse.x, mouse.y);
+                }
+                else if (mode === 'grab') {
+                    const obj = findObjectAt(mouse.x, mouse.y);
+                    if (obj) {
+                        mouse.draggedObj = obj;
+                        mouse.dragOffsetX = obj.x - mouse.x;
+                        mouse.dragOffsetY = obj.y - mouse.y;
+                        obj.vx = 0; obj.vy = 0;
+                    }
+                }
+                else if (mode === 'connect') {
+                    const obj = findObjectAt(mouse.x, mouse.y);
+                    if (obj) {
+                        if (connectObj1 === null) {
+                            connectObj1 = obj;
+                        } else if (connectObj1 !== obj) {
+                            // Create spring
+                            const dx = obj.x - connectObj1.x;
+                            const dy = obj.y - connectObj1.y;
+                            const dist = Math.sqrt(dx*dx + dy*dy);
+                            springs.push({
+                                obj1: connectObj1,
+                                obj2: obj,
+                                length: dist,
+                                stiffness: 0.1
+                            });
+                            connectObj1 = null;
                         }
-                        break;
-                        
-                    case 'connect':
-                        // Start connection
-                        const obj1 = findObjectAt(mouse.x, mouse.y);
-                        if (obj1) {
-                            connectingObj = obj1;
+                    }
+                }
+                else if (mode === 'delete') {
+                    for (let i = objects.length - 1; i >= 0; i--) {
+                        if (objects[i].contains(mouse.x, mouse.y)) {
+                            objects.splice(i, 1);
+                            break;
                         }
-                        break;
-                        
-                    case 'delete':
-                        // Delete object
-                        for (let i = objects.length - 1; i >= 0; i--) {
-                            if (objects[i].containsPoint(mouse.x, mouse.y)) {
-                                springs = springs.filter(s => s.obj1 !== objects[i] && s.obj2 !== objects[i]);
-                                ropes = ropes.filter(r => r.obj1 !== objects[i] && r.obj2 !== objects[i]);
-                                objects.splice(i, 1);
-                                break;
-                            }
-                        }
-                        break;
+                    }
                 }
             }
         });
         
-        canvas.addEventListener('mousemove', (e) => {
-            const pos = getCanvasPosition();
-            mouse.screenX = e.clientX - pos.x;
-            mouse.screenY = e.clientY - pos.y;
-            const worldPos = screenToWorld(mouse.screenX, mouse.screenY);
-            mouse.x = worldPos.x;
-            mouse.y = worldPos.y;
+        canvas.addEventListener('mousemove', e => {
+            const rect = canvas.getBoundingClientRect();
+            mouse.screenX = e.clientX - rect.left;
+            mouse.screenY = e.clientY - rect.top;
+            const world = toWorld(mouse.screenX, mouse.screenY);
+            mouse.x = world.x;
+            mouse.y = world.y;
             
             if (mouse.rightDown) {
-                // Pan camera
                 camera.x -= (mouse.x - mouse.lastX);
                 camera.y -= (mouse.y - mouse.lastY);
                 mouse.lastX = mouse.x;
@@ -1045,283 +740,66 @@
                 return;
             }
             
-            if (mouse.down && mouse.draggedObject) {
-                mouse.draggedObject.x = mouse.x + mouse.dragOffsetX;
-                mouse.draggedObject.y = mouse.y + mouse.dragOffsetY;
+            if (mouse.down && mouse.draggedObj) {
+                mouse.draggedObj.x = mouse.x + mouse.dragOffsetX;
+                mouse.draggedObj.y = mouse.y + mouse.dragOffsetY;
             }
         });
         
-        canvas.addEventListener('mouseup', (e) => {
-            const pos = getCanvasPosition();
-            const worldPos = screenToWorld(e.clientX - pos.x, e.clientY - pos.y);
-            
-            if (e.button === 2) {
-                mouse.rightDown = false;
-                return;
-            }
-            
+        canvas.addEventListener('mouseup', e => {
+            if (e.button === 2) mouse.rightDown = false;
             if (e.button === 0) {
-                if (mode === 'connect' && connectingObj) {
-                    // Complete connection
-                    const obj2 = findObjectAt(worldPos.x, worldPos.y);
-                    if (obj2 && obj2 !== connectingObj) {
-                        const dx = obj2.x - connectingObj.x;
-                        const dy = obj2.y - connectingObj.y;
-                        const distance = Math.sqrt(dx * dx + dy * dy);
-                        springs.push(new Spring(connectingObj, obj2, distance, 0.1, 0.5));
-                    }
-                    connectingObj = null;
-                }
-                
                 mouse.down = false;
-                mouse.draggedObject = null;
+                mouse.draggedObj = null;
             }
         });
         
-        canvas.addEventListener('wheel', (e) => {
+        canvas.addEventListener('wheel', e => {
             e.preventDefault();
             const zoomFactor = e.deltaY > 0 ? 0.9 : 1.1;
             const oldZoom = camera.zoom;
-            camera.zoom = Math.max(0.1, Math.min(3, camera.zoom * zoomFactor));
+            camera.zoom = Math.max(0.3, Math.min(2, camera.zoom * zoomFactor));
             
-            // Zoom towards mouse position
-            const pos = getCanvasPosition();
-            const mouseWorld = screenToWorld(e.clientX - pos.x, e.clientY - pos.y);
-            camera.x = mouseWorld.x - (e.clientX - pos.x - canvas.width/2) / (camera.zoom * canvas.width/2) * (camera.zoom - oldZoom);
-            camera.y = mouseWorld.y - (e.clientY - pos.y - canvas.height/2) / (camera.zoom * canvas.height/2) * (camera.zoom - oldZoom);
+            // Zoom towards mouse
+            const rect = canvas.getBoundingClientRect();
+            const mouseWorld = toWorld(e.clientX - rect.left, e.clientY - rect.top);
+            camera.x = mouseWorld.x - (e.clientX - rect.left - width/2) / width * (1/oldZoom - 1/camera.zoom) * width;
+            camera.y = mouseWorld.y - (e.clientY - rect.top - height/2) / height * (1/oldZoom - 1/camera.zoom) * height;
         });
         
-        canvas.addEventListener('contextmenu', (e) => {
-            e.preventDefault();
-        });
+        canvas.addEventListener('contextmenu', e => e.preventDefault());
         
-        window.addEventListener('keydown', (e) => {
-            if (e.key === 'Shift') {
-                mouse.shiftDown = true;
-            }
-        });
+        // ========== MAIN LOOP ==========
+        let lastTime = Date.now();
+        let fps = 60;
+        let frameCount = 0;
+        let startTime = Date.now();
         
-        window.addEventListener('keyup', (e) => {
-            if (e.key === 'Shift') {
-                mouse.shiftDown = false;
-            }
-        });
-        
-        // Mode buttons
-        document.getElementById('mode-add').addEventListener('click', () => {
-            mode = 'add';
-            updateModeButtons();
-            modeInstructions.textContent = 'Click anywhere to ADD objects';
-        });
-        
-        document.getElementById('mode-grab').addEventListener('click', () => {
-            mode = 'grab';
-            updateModeButtons();
-            modeInstructions.textContent = 'Click and drag to MOVE objects';
-        });
-        
-        document.getElementById('mode-connect').addEventListener('click', () => {
-            mode = 'connect';
-            updateModeButtons();
-            modeInstructions.textContent = 'Click first object, then second to CONNECT with spring';
-        });
-        
-        document.getElementById('mode-delete').addEventListener('click', () => {
-            mode = 'delete';
-            updateModeButtons();
-            modeInstructions.textContent = 'Click to DELETE objects';
-        });
-        
-        function updateModeButtons() {
-            document.querySelectorAll('#mode-selector button').forEach(btn => {
-                btn.classList.remove('mode-active');
-            });
-            document.getElementById(`mode-${mode}`).classList.add('mode-active');
-        }
-        
-        // UI event handlers
-        document.getElementById('gravity-slider').addEventListener('input', (e) => {
-            physics.gravity = parseFloat(e.target.value);
-            document.getElementById('gravity-value').textContent = physics.gravity.toFixed(2);
-        });
-        
-        document.getElementById('friction-slider').addEventListener('input', (e) => {
-            physics.friction = parseFloat(e.target.value);
-            document.getElementById('friction-value').textContent = physics.friction.toFixed(2);
-        });
-        
-        document.getElementById('air-resistance-slider').addEventListener('input', (e) => {
-            physics.airResistance = parseFloat(e.target.value);
-            document.getElementById('air-resistance-value').textContent = physics.airResistance.toFixed(3);
-        });
-        
-        document.getElementById('bounce-slider').addEventListener('input', (e) => {
-            physics.bounciness = parseFloat(e.target.value);
-            document.getElementById('bounce-value').textContent = physics.bounciness.toFixed(2);
-        });
-        
-        document.getElementById('obj-size').addEventListener('input', (e) => {
-            document.getElementById('obj-size-value').textContent = e.target.value;
-        });
-        
-        document.getElementById('obj-mass').addEventListener('input', (e) => {
-            document.getElementById('obj-mass-value').textContent = e.target.value;
-        });
-        
-        document.getElementById('toggle-gravity').addEventListener('change', (e) => {
-            physics.gravityEnabled = e.target.checked;
-        });
-        
-        document.getElementById('toggle-collisions').addEventListener('change', (e) => {
-            physics.collisionsEnabled = e.target.checked;
-        });
-        
-        document.getElementById('toggle-friction').addEventListener('change', (e) => {
-            physics.frictionEnabled = e.target.checked;
-        });
-        
-        document.getElementById('add-btn').addEventListener('click', () => {
-            const type = document.getElementById('object-type').value;
-            const size = parseInt(document.getElementById('obj-size').value);
-            const mass = parseInt(document.getElementById('obj-mass').value);
-            const color = document.getElementById('obj-color').value;
-            const fixed = document.getElementById('obj-fixed').checked;
-            
-            // Add at center of screen
-            const center = screenToWorld(canvas.width/2, canvas.height/2);
-            addObject(type, center.x, center.y, size, mass, color, fixed);
-        });
-        
-        document.getElementById('clear-btn').addEventListener('click', () => {
-            objects = [];
-            springs = [];
-            ropes = [];
-            forceVectors = [];
-            connectingObj = null;
-        });
-        
-        document.getElementById('add-spring-btn').addEventListener('click', () => {
-            if (objects.length < 2) {
-                alert('Need at least 2 objects to create a spring!');
-                return;
-            }
-            const obj1 = objects[objects.length - 2];
-            const obj2 = objects[objects.length - 1];
-            const dx = obj2.x - obj1.x;
-            const dy = obj2.y - obj1.y;
-            const distance = Math.sqrt(dx * dx + dy * dy);
-            springs.push(new Spring(obj1, obj2, distance, 0.1, 0.5));
-        });
-        
-        document.getElementById('add-rope-btn').addEventListener('click', () => {
-            if (objects.length < 2) {
-                alert('Need at least 2 objects to create a rope!');
-                return;
-            }
-            const obj1 = objects[objects.length - 2];
-            const obj2 = objects[objects.length - 1];
-            const dx = obj2.x - obj1.x;
-            const dy = obj2.y - obj1.y;
-            const distance = Math.sqrt(dx * dx + dy * dy);
-            ropes.push(new Rope(obj1, obj2, distance));
-        });
-        
-        // Presets
-        document.getElementById('preset-pendulum').addEventListener('click', () => {
-            clearAll();
-            const fixedPoint = addObject('circle', 0, -100, 10, 1000, '#ffff00', true);
-            const bob = addObject('circle', 0, -50, 30, 10, '#ff0000', false);
-            ropes.push(new Rope(fixedPoint, bob, 100));
-            bob.vx = 2;
-        });
-        
-        document.getElementById('preset-domino').addEventListener('click', () => {
-            clearAll();
-            for (let i = 0; i < 10; i++) {
-                const domino = addObject('rectangle', i * 40 - 200, -150, 10, 50, 5, '#ff6600', false);
-                domino.rotation = Math.PI / 2;
-            }
-            const ball = addObject('circle', -250, -100, 20, 20, '#00ff00', false);
-            ball.vx = 5;
-        });
-        
-        document.getElementById('preset-orbit').addEventListener('click', () => {
-            clearAll();
-            const center = addObject('circle', 0, 0, 50, 1000, '#ffff00', true);
-            for (let i = 0; i < 5; i++) {
-                const angle = (i / 5) * Math.PI * 2;
-                const distance = 150 + i * 30;
-                const planet = addObject('circle', 
-                    Math.cos(angle) * distance, 
-                    Math.sin(angle) * distance,
-                    15 + i * 3, 10 + i * 2, 
-                    getRandomColor(), false);
-                const speed = Math.sqrt(1000 / distance) * 0.5;
-                planet.vx = -Math.sin(angle) * speed;
-                planet.vy = Math.cos(angle) * speed;
-            }
-        });
-        
-        document.getElementById('preset-bridge').addEventListener('click', () => {
-            clearAll();
-            const leftSupport = addObject('rectangle', -200, 0, 20, 100, 1000, '#888888', true);
-            const rightSupport = addObject('rectangle', 200, 0, 20, 100, 1000, '#888888', true);
-            for (let i = 0; i < 10; i++) {
-                const plank = addObject('rectangle', -180 + i * 40, -10, 35, 8, 50, '#8B4513', false);
-            }
-            for (let i = 1; i < 10; i++) {
-                springs.push(new Spring(
-                    objects[1 + i - 1], 
-                    objects[1 + i], 
-                    40, 0.5, 0.1
-                ));
-            }
-            const weight = addObject('circle', 0, -50, 25, 50, '#ff0000', false);
-        });
-        
-        document.getElementById('preset-catapult').addEventListener('click', () => {
-            clearAll();
-            const base = addObject('rectangle', -100, 50, 200, 20, 1000, '#888888', true);
-            const pivot = addObject('circle', -50, 0, 5, 1000, '#ffff00', true);
-            const arm = addObject('rectangle', -50, -50, 100, 10, 50, '#8B4513', false);
-            ropes.push(new Rope(pivot, arm, 50));
-            const projectile = addObject('circle', 0, -50, 15, 5, '#ff0000', false);
-            ropes.push(new Rope(arm, projectile, 40));
-            arm.rotation = -Math.PI / 4;
-        });
-        
-        function clearAll() {
-            objects = [];
-            springs = [];
-            ropes = [];
-            forceVectors = [];
-            connectingObj = null;
-        }
-        
-        function getRandomColor() {
-            const letters = '0123456789ABCDEF';
-            let color = '#';
-            for (let i = 0; i < 6; i++) {
-                color += letters[Math.floor(Math.random() * 16)];
-            }
-            return color;
-        }
-        
-        // Main update loop
         function update(dt) {
+            // Update objects
             for (let obj of objects) {
                 obj.update(dt);
             }
             
+            // Update springs
             for (let spring of springs) {
-                spring.update(dt);
+                const dx = spring.obj2.x - spring.obj1.x;
+                const dy = spring.obj2.y - spring.obj1.y;
+                const dist = Math.sqrt(dx*dx + dy*dy);
+                const force = spring.stiffness * (dist - spring.length);
+                
+                if (!spring.obj1.fixed) {
+                    spring.obj1.vx += force * dx / dist / spring.obj1.mass * dt * 100;
+                    spring.obj1.vy += force * dy / dist / spring.obj1.mass * dt * 100;
+                }
+                if (!spring.obj2.fixed) {
+                    spring.obj2.vx -= force * dx / dist / spring.obj2.mass * dt * 100;
+                    spring.obj2.vy -= force * dy / dist / spring.obj2.mass * dt * 100;
+                }
             }
             
-            for (let rope of ropes) {
-                rope.update(dt);
-            }
-            
-            if (physics.collisionsEnabled) {
+            // Collisions
+            if (physics.collisionsOn) {
                 for (let i = 0; i < objects.length; i++) {
                     for (let j = i + 1; j < objects.length; j++) {
                         if (checkCollision(objects[i], objects[j])) {
@@ -1331,96 +809,96 @@
                 }
             }
             
+            // Keep objects on screen
             for (let obj of objects) {
-                if (obj.y > 500 && !obj.fixed) {
-                    obj.y = 500;
+                if (obj.y > 300 && !obj.fixed) {
+                    obj.y = 300;
                     obj.vy = 0;
                 }
             }
         }
         
-        // Main draw loop
         function draw() {
-            ctx.fillStyle = '#111';
-            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            // Clear
+            ctx.fillStyle = '#0a0a0a';
+            ctx.fillRect(0, 0, width, height);
             
-            // Draw grid
-            ctx.strokeStyle = '#222';
+            // Grid
+            ctx.strokeStyle = '#1a1a1a';
             ctx.lineWidth = 1;
             const gridSize = 50 * camera.zoom;
-            const startX = -canvas.width/2 - camera.x * camera.zoom;
-            const startY = -canvas.height/2 - camera.y * camera.zoom;
+            const startX = (camera.x - width/(2*camera.zoom)) % gridSize;
+            const startY = (camera.y - height/(2*camera.zoom)) % gridSize;
             
-            for (let x = startX; x < canvas.width; x += gridSize) {
+            for (let x = startX; x < width; x += gridSize) {
                 ctx.beginPath();
                 ctx.moveTo(x, 0);
-                ctx.lineTo(x, canvas.height);
+                ctx.lineTo(x, height);
                 ctx.stroke();
             }
-            for (let y = startY; y < canvas.height; y += gridSize) {
+            for (let y = startY; y < height; y += gridSize) {
                 ctx.beginPath();
                 ctx.moveTo(0, y);
-                ctx.lineTo(canvas.width, y);
+                ctx.lineTo(width, y);
                 ctx.stroke();
             }
             
-            // Draw axes
-            ctx.strokeStyle = '#444';
+            // Axes
+            ctx.strokeStyle = '#333';
             ctx.lineWidth = 2;
-            const zeroX = worldToScreen(0, 0).x;
-            const zeroY = worldToScreen(0, 0).y;
+            const zero = toScreen(0, 0);
             ctx.beginPath();
-            ctx.moveTo(0, zeroY);
-            ctx.lineTo(canvas.width, zeroY);
-            ctx.moveTo(zeroX, 0);
-            ctx.lineTo(zeroX, canvas.height);
+            ctx.moveTo(0, zero.y);
+            ctx.lineTo(width, zero.y);
+            ctx.moveTo(zero.x, 0);
+            ctx.lineTo(zero.x, height);
             ctx.stroke();
             
-            // Draw springs
+            // Springs
+            ctx.strokeStyle = '#ffff00';
+            ctx.lineWidth = 1;
             for (let spring of springs) {
-                spring.draw();
+                const s1 = toScreen(spring.obj1.x, spring.obj1.y);
+                const s2 = toScreen(spring.obj2.x, spring.obj2.y);
+                ctx.beginPath();
+                ctx.moveTo(s1.x, s1.y);
+                ctx.lineTo(s2.x, s2.y);
+                ctx.stroke();
             }
             
-            // Draw ropes
-            for (let rope of ropes) {
-                rope.draw();
-            }
-            
-            // Draw objects
+            // Objects
             for (let obj of objects) {
                 obj.draw();
             }
             
-            // Draw connection preview
-            if (mode === 'connect' && connectingObj) {
-                const pos = worldToScreen(connectingObj.x, connectingObj.y);
+            // Connection preview
+            if (mode === 'connect' && connectObj1) {
+                const s1 = toScreen(connectObj1.x, connectObj1.y);
                 ctx.strokeStyle = '#ffff00';
-                ctx.lineWidth = 2;
-                ctx.setLineDash([5, 5]);
+                ctx.lineWidth = 1;
+                ctx.setLineDash([3, 3]);
                 ctx.beginPath();
-                ctx.moveTo(pos.x, pos.y);
+                ctx.moveTo(s1.x, s1.y);
                 ctx.lineTo(mouse.screenX, mouse.screenY);
                 ctx.stroke();
                 ctx.setLineDash([]);
             }
             
-            // Update stats
-            const elapsed = (Date.now() - startTime) / 1000;
-            statsDisplay.textContent = `FPS: ${fps} | Objects: ${objects.length} | Springs: ${springs.length} | Rope: ${ropes.length} | Time: ${elapsed.toFixed(1)}s | Mode: ${mode.toUpperCase()}`;
-        }
-        
-        // Main game loop
-        function gameLoop() {
-            const now = Date.now();
-            const dt = Math.min((now - lastFrameTime) / 1000, 0.1);
-            lastFrameTime = now;
-            
+            // Stats
             frameCount++;
+            const now = Date.now();
             if (now - startTime > 1000) {
                 fps = frameCount;
                 frameCount = 0;
                 startTime = now;
             }
+            statsDisplay.textContent = `FPS: ${fps} | Objects: ${objects.length} | Springs: ${springs.length} | Mode: ${mode.toUpperCase()}`;
+        }
+        
+        function gameLoop() {
+            const now = Date.now();
+            const dt = Math.min((now - lastTime) / 1000, 0.1);
+            lastTime = now;
             
             update(dt);
             draw();
@@ -1428,8 +906,7 @@
             requestAnimationFrame(gameLoop);
         }
         
-        // Start the game
-        resizeCanvas();
+        // Start
         gameLoop();
     </script>
 </body>
