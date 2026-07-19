@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Classic Penguin Game</title>
+    <title>PENGUIN FISH CATCHER</title>
     <style>
         body {
             margin: 0;
@@ -13,39 +13,44 @@
             align-items: center;
             height: 100vh;
             background: linear-gradient(to bottom, #87CEEB, #1E90FF);
-            font-family: 'Arial', sans-serif;
+            font-family: 'Press Start 2P', 'Arial', sans-serif;
             overflow: hidden;
         }
+        
+        @import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
         
         #game-container {
             text-align: center;
         }
         
         #game-canvas {
-            background: #000;
+            background: #0a0a2a;
             border: 8px solid #FFF;
-            box-shadow: 0 0 20px rgba(0,0,0,0.5);
+            box-shadow: 0 0 30px rgba(0,0,0,0.7);
         }
         
         #title {
-            color: #FFF;
-            text-shadow: 3px 3px 0 #000, -3px -3px 0 #000, 3px -3px 0 #000, -3px 3px 0 #000;
-            font-size: 48px;
-            margin-bottom: 10px;
+            color: #FFD700;
+            text-shadow: 5px 5px 0 #000, -5px -5px 0 #000, 5px -5px 0 #000, -5px 5px 0 #000;
+            font-size: 32px;
+            margin-bottom: 5px;
+            letter-spacing: 3px;
         }
         
         #subtitle {
             color: #FFF;
-            text-shadow: 2px 2px 0 #000;
-            font-size: 18px;
-            margin-bottom: 20px;
+            text-shadow: 3px 3px 0 #000;
+            font-size: 12px;
+            margin-bottom: 15px;
+            letter-spacing: 1px;
         }
         
         #score-display {
-            color: #FFF;
-            text-shadow: 2px 2px 0 #000;
-            font-size: 24px;
+            color: #FFD700;
+            text-shadow: 3px 3px 0 #000;
+            font-size: 16px;
             margin-top: 10px;
+            letter-spacing: 1px;
         }
         
         #game-over {
@@ -53,25 +58,28 @@
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
-            background: rgba(0,0,0,0.8);
-            color: #FFF;
-            padding: 30px;
-            border-radius: 10px;
+            background: rgba(0,0,0,0.9);
+            color: #FFD700;
+            padding: 40px;
+            border: 4px solid #FFD700;
+            border-radius: 0;
             text-align: center;
             display: none;
+            font-family: 'Press Start 2P', sans-serif;
         }
         
         #restart-btn {
             background: #FFD700;
             color: #000;
             border: none;
-            padding: 12px 24px;
-            font-size: 18px;
+            padding: 15px 30px;
+            font-size: 14px;
             font-weight: bold;
             cursor: pointer;
-            border-radius: 5px;
+            border-radius: 0;
             margin-top: 20px;
-            transition: all 0.3s;
+            transition: all 0.2s;
+            font-family: 'Press Start 2P', sans-serif;
         }
         
         #restart-btn:hover {
@@ -81,27 +89,49 @@
         
         .controls {
             color: #FFF;
-            text-shadow: 1px 1px 0 #000;
-            font-size: 14px;
+            text-shadow: 2px 2px 0 #000;
+            font-size: 10px;
             margin-top: 10px;
+            letter-spacing: 1px;
+        }
+        
+        #level-up {
+            position: absolute;
+            top: 30%;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(0,0,0,0.8);
+            color: #FFD700;
+            padding: 20px;
+            border: 3px solid #FFD700;
+            text-align: center;
+            display: none;
+            font-family: 'Press Start 2P', sans-serif;
+            font-size: 18px;
+            z-index: 100;
         }
     </style>
 </head>
 <body>
     <div id="game-container">
-        <h1 id="title">PENGUIN ADVENTURE</h1>
-        <p id="subtitle">Use Arrow Keys to Move | Collect Fish | Avoid Sharks</p>
-        <canvas id="game-canvas" width="800" height="600"></canvas>
-        <div id="score-display">Score: 0 | Lives: 3</div>
+        <h1 id="title">PENGUIN FISH CATCHER</h1>
+        <p id="subtitle">ARROW KEYS TO MOVE | SPACE TO JUMP | CATCH ALL FISH</p>
+        <canvas id="game-canvas" width="800" height="500"></canvas>
+        <div id="score-display">SCORE: 0 | LIVES: 3 | LEVEL: 1</div>
         <div class="controls">
-            <p>Arrow Keys - Move | Space - Jump | P - Pause</p>
+            <p>P - PAUSE | R - RESTART</p>
         </div>
     </div>
     
     <div id="game-over">
         <h2>GAME OVER</h2>
-        <p id="final-score">Score: 0</p>
+        <p id="final-score">SCORE: 0</p>
         <button id="restart-btn">PLAY AGAIN</button>
+    </div>
+    
+    <div id="level-up">
+        <h2>LEVEL COMPLETE!</h2>
+        <p id="level-message">GET READY...</p>
     </div>
 
     <script>
@@ -112,6 +142,8 @@
         const gameOverScreen = document.getElementById('game-over');
         const finalScoreDisplay = document.getElementById('final-score');
         const restartBtn = document.getElementById('restart-btn');
+        const levelUpScreen = document.getElementById('level-up');
+        const levelMessage = document.getElementById('level-message');
 
         // Game State
         let gameRunning = true;
@@ -120,132 +152,131 @@
         let lives = 3;
         let level = 1;
         let fishCollected = 0;
-        let fishToWin = 10;
+        let fishToWin = 5;
+        let levelUpTimer = 0;
+        let invincible = false;
+        let invincibleTimer = 0;
 
         // Player
         const player = {
             x: 100,
-            y: 400,
-            width: 40,
-            height: 60,
-            speed: 5,
-            jumpForce: 12,
+            y: 350,
+            width: 35,
+            height: 50,
+            speed: 6,
+            jumpForce: 15,
             velocityY: 0,
             isJumping: false,
             direction: 'right',
-            frame: 0,
-            frameCount: 0,
+            onGround: false,
             color: '#000'
         };
+
+        // Gravity
+        const gravity = 1;
+        const friction = 0.85;
 
         // Input
         const keys = {
             ArrowLeft: false,
             ArrowRight: false,
             ArrowUp: false,
-            ArrowDown: false,
             Space: false
+        };
+
+        // Ground
+        const ground = {
+            x: 0,
+            y: 450,
+            width: canvas.width,
+            height: 50
         };
 
         // Platforms
         let platforms = [
-            { x: 0, y: 550, width: 200, height: 50, color: '#FFF' },
-            { x: 250, y: 500, width: 200, height: 50, color: '#FFF' },
-            { x: 500, y: 450, width: 200, height: 50, color: '#FFF' },
-            { x: 750, y: 400, width: 50, height: 50, color: '#FFF' },
-            { x: 0, y: 400, width: 50, height: 50, color: '#FFF' },
-            { x: 300, y: 350, width: 100, height: 50, color: '#FFF' },
-            { x: 600, y: 300, width: 100, height: 50, color: '#FFF' }
+            { x: 200, y: 400, width: 150, height: 20 },
+            { x: 450, y: 350, width: 150, height: 20 },
+            { x: 100, y: 300, width: 150, height: 20 },
+            { x: 550, y: 250, width: 150, height: 20 },
+            { x: 300, y: 200, width: 150, height: 20 }
         ];
 
-        // Fish (collectibles)
+        // Fish (collectibles) - NOW ON GROUND/PLATFORMS
         let fish = [];
         
         // Sharks (enemies)
         let sharks = [];
-        
-        // Ice blocks (obstacles)
-        let iceBlocks = [];
-
-        // Snow particles
-        let snowParticles = [];
 
         // Initialize game objects
         function init() {
             // Clear existing objects
             fish = [];
             sharks = [];
-            iceBlocks = [];
-            snowParticles = [];
 
-            // Create fish
-            for (let i = 0; i < 15; i++) {
+            // Create fish ON THE GROUND and PLATFORMS
+            for (let i = 0; i < fishToWin; i++) {
+                const platformIndex = Math.floor(Math.random() * (platforms.length + 1));
+                let fishX, fishY;
+                
+                if (platformIndex < platforms.length) {
+                    // Place on a platform
+                    const platform = platforms[platformIndex];
+                    fishX = platform.x + Math.random() * (platform.width - 20);
+                    fishY = platform.y - 20; // Just above the platform
+                } else {
+                    // Place on ground
+                    fishX = Math.random() * (canvas.width - 20);
+                    fishY = ground.y - 20;
+                }
+                
                 fish.push({
-                    x: Math.random() * (canvas.width - 30),
-                    y: Math.random() * (canvas.height - 200) + 50,
-                    width: 25,
-                    height: 15,
+                    x: fishX,
+                    y: fishY,
+                    width: 20,
+                    height: 12,
                     color: '#FF6B6B',
-                    collected: false
+                    collected: false,
+                    wobble: Math.random() * Math.PI * 2
                 });
             }
 
             // Create sharks
-            for (let i = 0; i < 3; i++) {
+            for (let i = 0; i < level; i++) {
+                const platformIndex = Math.floor(Math.random() * platforms.length);
+                const platform = platforms[platformIndex];
                 sharks.push({
-                    x: Math.random() * (canvas.width - 60),
-                    y: Math.random() * (canvas.height - 300) + 100,
-                    width: 50,
-                    height: 30,
-                    speed: 2 + Math.random() * 2,
-                    direction: Math.random() > 0.5 ? 1 : -1,
-                    color: '#808080'
-                });
-            }
-
-            // Create ice blocks
-            for (let i = 0; i < 5; i++) {
-                iceBlocks.push({
-                    x: Math.random() * (canvas.width - 40),
-                    y: Math.random() * (canvas.height - 300) + 100,
+                    x: platform.x,
+                    y: platform.y - 30,
                     width: 40,
-                    height: 40,
-                    color: '#ADD8E6'
-                });
-            }
-
-            // Create snow particles
-            for (let i = 0; i < 100; i++) {
-                snowParticles.push({
-                    x: Math.random() * canvas.width,
-                    y: Math.random() * canvas.height,
-                    size: Math.random() * 3 + 1,
-                    speed: Math.random() * 2 + 1
+                    height: 20,
+                    speed: 1.5 + level * 0.3,
+                    direction: Math.random() > 0.5 ? 1 : -1,
+                    range: platform.width - 40,
+                    startX: platform.x,
+                    color: '#555'
                 });
             }
 
             // Reset player
             player.x = 100;
-            player.y = 400;
+            player.y = ground.y - player.height;
             player.velocityY = 0;
             player.isJumping = false;
+            player.onGround = true;
             player.direction = 'right';
 
             // Reset game state
-            score = 0;
-            lives = 3;
-            level = 1;
             fishCollected = 0;
-            fishToWin = 10;
             gameRunning = true;
             gamePaused = false;
+            invincible = false;
 
             updateScoreDisplay();
         }
 
         // Update score display
         function updateScoreDisplay() {
-            scoreDisplay.textContent = `Score: ${score} | Lives: ${lives} | Level: ${level} | Fish: ${fishCollected}/${fishToWin}`;
+            scoreDisplay.textContent = `SCORE: ${score} | LIVES: ${lives} | LEVEL: ${level} | FISH: ${fishCollected}/${fishToWin}`;
         }
 
         // Handle keyboard input
@@ -260,8 +291,16 @@
             }
             
             // Restart game
-            if (e.code === 'KeyR' && !gameRunning) {
-                init();
+            if (e.code === 'KeyR') {
+                if (!gameRunning) {
+                    gameOverScreen.style.display = 'none';
+                    levelUpScreen.style.display = 'none';
+                    level = 1;
+                    score = 0;
+                    lives = 3;
+                    fishToWin = 5;
+                    init();
+                }
             }
         });
 
@@ -274,6 +313,11 @@
         // Restart button
         restartBtn.addEventListener('click', () => {
             gameOverScreen.style.display = 'none';
+            levelUpScreen.style.display = 'none';
+            level = 1;
+            score = 0;
+            lives = 3;
+            fishToWin = 5;
             init();
         });
 
@@ -287,67 +331,115 @@
             );
         }
 
-        // Check if player is on a platform
-        function isOnPlatform() {
-            for (let platform of platforms) {
-                if (
-                    player.y + player.height >= platform.y &&
-                    player.y + player.height <= platform.y + platform.height &&
-                    player.x + player.width > platform.x &&
-                    player.x < platform.x + platform.width
-                ) {
+        // Check if player is on ground or platform
+        function isOnGround() {
+            // Check ground
+            if (player.y + player.height >= ground.y && player.y + player.height <= ground.y + 10) {
+                if (player.x + player.width > ground.x && player.x < ground.x + ground.width) {
                     return true;
                 }
             }
+            
+            // Check platforms
+            for (let platform of platforms) {
+                if (player.y + player.height >= platform.y && player.y + player.height <= platform.y + 10) {
+                    if (player.x + player.width > platform.x && player.x < platform.x + platform.width) {
+                        return true;
+                    }
+                }
+            }
             return false;
+        }
+
+        // Get the platform player is standing on
+        function getCurrentPlatform() {
+            if (player.y + player.height >= ground.y && player.y + player.height <= ground.y + 10) {
+                if (player.x + player.width > ground.x && player.x < ground.x + ground.width) {
+                    return ground;
+                }
+            }
+            
+            for (let platform of platforms) {
+                if (player.y + player.height >= platform.y && player.y + player.height <= platform.y + 10) {
+                    if (player.x + player.width > platform.x && player.x < platform.x + platform.width) {
+                        return platform;
+                    }
+                }
+            }
+            return null;
         }
 
         // Draw penguin
         function drawPenguin() {
             ctx.save();
             
-            // Body
+            // Body - black
             ctx.fillStyle = '#000';
             ctx.beginPath();
-            ctx.ellipse(player.x + player.width/2, player.y + player.height/2, 
-                       player.width/2, player.height/2 - 5, 0, 0, Math.PI * 2);
+            ctx.ellipse(player.x + player.width/2, player.y + player.height/2 - 5, 
+                       player.width/2, player.height/2 - 3, 0, 0, Math.PI * 2);
             ctx.fill();
             
-            // Belly
+            // Belly - white
             ctx.fillStyle = '#FFF';
             ctx.beginPath();
-            ctx.ellipse(player.x + player.width/2, player.y + player.height/2 + 5, 
-                       player.width/2 - 5, player.height/2 - 10, 0, 0, Math.PI * 2);
+            ctx.ellipse(player.x + player.width/2, player.y + player.height/2 + 3, 
+                       player.width/2 - 3, player.height/2 - 8, 0, 0, Math.PI * 2);
             ctx.fill();
             
             // Eyes
             ctx.fillStyle = '#000';
-            const eyeOffset = player.direction === 'right' ? 10 : -10;
+            const eyeOffsetX = player.direction === 'right' ? 8 : -8;
             ctx.beginPath();
-            ctx.arc(player.x + player.width/2 + eyeOffset, player.y + 20, 5, 0, Math.PI * 2);
-            ctx.arc(player.x + player.width/2 - eyeOffset, player.y + 20, 5, 0, Math.PI * 2);
+            ctx.arc(player.x + player.width/2 + eyeOffsetX, player.y + 15, 4, 0, Math.PI * 2);
+            ctx.arc(player.x + player.width/2 - eyeOffsetX, player.y + 15, 4, 0, Math.PI * 2);
             ctx.fill();
             
-            // Beak
+            // Eye shine
+            ctx.fillStyle = '#FFF';
+            ctx.beginPath();
+            ctx.arc(player.x + player.width/2 + eyeOffsetX + 2, player.y + 13, 1, 0, Math.PI * 2);
+            ctx.arc(player.x + player.width/2 - eyeOffsetX + 2, player.y + 13, 1, 0, Math.PI * 2);
+            ctx.fill();
+            
+            // Beak - orange
             ctx.fillStyle = '#FFA500';
             ctx.beginPath();
-            ctx.moveTo(player.x + player.width/2, player.y + 25);
-            ctx.lineTo(player.x + player.width/2 + (player.direction === 'right' ? 10 : -10), player.y + 30);
-            ctx.lineTo(player.x + player.width/2 + (player.direction === 'right' ? 10 : -10), player.y + 20);
+            ctx.moveTo(player.x + player.width/2, player.y + 22);
+            ctx.lineTo(player.x + player.width/2 + (player.direction === 'right' ? 10 : -10), player.y + 27);
+            ctx.lineTo(player.x + player.width/2 + (player.direction === 'right' ? 10 : -10), player.y + 17);
             ctx.closePath();
             ctx.fill();
             
-            // Feet
+            // Feet - orange
             ctx.fillStyle = '#FFA500';
-            ctx.fillRect(player.x + player.width/2 - 8, player.y + player.height - 10, 8, 5);
-            ctx.fillRect(player.x + player.width/2, player.y + player.height - 10, 8, 5);
+            ctx.fillRect(player.x + player.width/2 - 6, player.y + player.height - 8, 6, 4);
+            ctx.fillRect(player.x + player.width/2, player.y + player.height - 8, 6, 4);
             
             // Wings
             ctx.fillStyle = '#000';
             if (player.direction === 'right') {
-                ctx.fillRect(player.x + 5, player.y + player.height/2 - 5, 15, 10);
+                ctx.beginPath();
+                ctx.moveTo(player.x + 5, player.y + player.height/2);
+                ctx.lineTo(player.x + 15, player.y + player.height/2 - 5);
+                ctx.lineTo(player.x + 15, player.y + player.height/2 + 5);
+                ctx.closePath();
+                ctx.fill();
             } else {
-                ctx.fillRect(player.x + player.width - 20, player.y + player.height/2 - 5, 15, 10);
+                ctx.beginPath();
+                ctx.moveTo(player.x + player.width - 5, player.y + player.height/2);
+                ctx.lineTo(player.x + player.width - 15, player.y + player.height/2 - 5);
+                ctx.lineTo(player.x + player.width - 15, player.y + player.height/2 + 5);
+                ctx.closePath();
+                ctx.fill();
+            }
+            
+            // Invincible blink effect
+            if (invincible && Math.floor(Date.now() / 200) % 2 === 0) {
+                ctx.globalAlpha = 0.5;
+                ctx.fillStyle = '#FF0000';
+                ctx.fillRect(player.x - 2, player.y - 2, player.width + 4, player.height + 4);
+                ctx.globalAlpha = 1;
             }
             
             ctx.restore();
@@ -356,27 +448,37 @@
         // Draw fish
         function drawFish(fish) {
             ctx.save();
-            ctx.fillStyle = fish.color;
             
-            // Fish body
+            // Fish body - wobble animation
+            const wobbleOffset = Math.sin(Date.now() * 0.005 + fish.wobble) * 2;
+            
+            ctx.fillStyle = fish.color;
             ctx.beginPath();
-            ctx.ellipse(fish.x + fish.width/2, fish.y + fish.height/2, 
+            ctx.ellipse(fish.x + fish.width/2, fish.y + fish.height/2 + wobbleOffset, 
                        fish.width/2, fish.height/2, 0, 0, Math.PI * 2);
             ctx.fill();
             
             // Fish tail
             ctx.beginPath();
-            ctx.moveTo(fish.x + fish.width, fish.y + fish.height/2);
-            ctx.lineTo(fish.x + fish.width + 10, fish.y);
-            ctx.lineTo(fish.x + fish.width + 10, fish.y + fish.height);
+            ctx.moveTo(fish.x + fish.width, fish.y + fish.height/2 + wobbleOffset);
+            ctx.lineTo(fish.x + fish.width + 8, fish.y + wobbleOffset - 4);
+            ctx.lineTo(fish.x + fish.width + 8, fish.y + fish.height + wobbleOffset + 4);
             ctx.closePath();
             ctx.fill();
             
             // Fish eye
             ctx.fillStyle = '#000';
             ctx.beginPath();
-            ctx.arc(fish.x + 8, fish.y + fish.height/2, 2, 0, Math.PI * 2);
+            ctx.arc(fish.x + 6, fish.y + fish.height/2 + wobbleOffset - 1, 2, 0, Math.PI * 2);
             ctx.fill();
+            
+            // Fish mouth
+            ctx.strokeStyle = '#FF0000';
+            ctx.lineWidth = 1;
+            ctx.beginPath();
+            ctx.moveTo(fish.x, fish.y + fish.height/2 + wobbleOffset);
+            ctx.lineTo(fish.x - 3, fish.y + fish.height/2 + wobbleOffset);
+            ctx.stroke();
             
             ctx.restore();
         }
@@ -397,47 +499,26 @@
             // Shark fin
             ctx.beginPath();
             ctx.moveTo(shark.x + shark.width/2, shark.y);
-            ctx.lineTo(shark.x + shark.width/2 + 10, shark.y - 10);
-            ctx.lineTo(shark.x + shark.width/2 + 20, shark.y);
+            ctx.lineTo(shark.x + shark.width/2 + 8, shark.y - 8);
+            ctx.lineTo(shark.x + shark.width/2 + 16, shark.y);
             ctx.closePath();
             ctx.fill();
             
             // Shark eye
             ctx.fillStyle = '#000';
             ctx.beginPath();
-            ctx.arc(shark.x + 10, shark.y + shark.height/2, 3, 0, Math.PI * 2);
+            ctx.arc(shark.x + 8, shark.y + shark.height/2, 2, 0, Math.PI * 2);
             ctx.fill();
             
-            // Shark mouth
+            // Shark teeth
             ctx.strokeStyle = '#FFF';
-            ctx.lineWidth = 2;
+            ctx.lineWidth = 1;
             ctx.beginPath();
             ctx.moveTo(shark.x, shark.y + shark.height/2);
-            ctx.lineTo(shark.x - 5, shark.y + shark.height/2 - 5);
-            ctx.lineTo(shark.x - 5, shark.y + shark.height/2 + 5);
-            ctx.closePath();
+            ctx.lineTo(shark.x - 3, shark.y + shark.height/2 - 3);
+            ctx.moveTo(shark.x, shark.y + shark.height/2);
+            ctx.lineTo(shark.x - 3, shark.y + shark.height/2 + 3);
             ctx.stroke();
-            
-            ctx.restore();
-        }
-
-        // Draw ice block
-        function drawIceBlock(block) {
-            ctx.save();
-            ctx.fillStyle = block.color;
-            ctx.fillRect(block.x, block.y, block.width, block.height);
-            
-            // Ice details
-            ctx.strokeStyle = '#FFF';
-            ctx.lineWidth = 2;
-            ctx.strokeRect(block.x, block.y, block.width, block.height);
-            
-            // Ice sparkles
-            ctx.fillStyle = 'rgba(255,255,255,0.7)';
-            ctx.beginPath();
-            ctx.arc(block.x + 10, block.y + 10, 2, 0, Math.PI * 2);
-            ctx.arc(block.x + block.width - 10, block.y + block.height - 10, 2, 0, Math.PI * 2);
-            ctx.fill();
             
             ctx.restore();
         }
@@ -445,48 +526,131 @@
         // Draw platform
         function drawPlatform(platform) {
             ctx.save();
-            ctx.fillStyle = platform.color;
+            ctx.fillStyle = '#E0F7FA';
             ctx.fillRect(platform.x, platform.y, platform.width, platform.height);
             
             // Platform shadow
             ctx.fillStyle = 'rgba(0,0,0,0.2)';
-            ctx.fillRect(platform.x, platform.y + platform.height, platform.width, 5);
+            ctx.fillRect(platform.x, platform.y + platform.height, platform.width, 3);
             
-            // Platform details
-            ctx.strokeStyle = '#DDD';
-            ctx.lineWidth = 2;
+            // Platform details - ice cracks
+            ctx.strokeStyle = '#B2EBF2';
+            ctx.lineWidth = 1;
             ctx.strokeRect(platform.x, platform.y, platform.width, platform.height);
             
-            ctx.restore();
-        }
-
-        // Draw snow
-        function drawSnow() {
-            ctx.save();
-            ctx.fillStyle = '#FFF';
-            
-            for (let particle of snowParticles) {
+            // Ice sparkles
+            ctx.fillStyle = 'rgba(255,255,255,0.8)';
+            for (let i = 0; i < 3; i++) {
                 ctx.beginPath();
-                ctx.arc(particle.x, particle.y, particle.size, 0, Math.PI * 2);
+                ctx.arc(
+                    platform.x + Math.random() * platform.width,
+                    platform.y + Math.random() * platform.height,
+                    1, 0, Math.PI * 2
+                );
                 ctx.fill();
             }
             
             ctx.restore();
         }
 
-        // Update snow particles
-        function updateSnow() {
-            for (let particle of snowParticles) {
-                particle.y += particle.speed;
-                
-                // Reset particle when it falls off screen
-                if (particle.y > canvas.height) {
-                    particle.y = 0;
-                    particle.x = Math.random() * canvas.width;
+        // Draw ground (ice)
+        function drawGround() {
+            ctx.save();
+            ctx.fillStyle = '#E0F7FA';
+            ctx.fillRect(ground.x, ground.y, ground.width, ground.height);
+            
+            // Ground details
+            ctx.strokeStyle = '#B2EBF2';
+            ctx.lineWidth = 2;
+            ctx.strokeRect(ground.x, ground.y, ground.width, ground.height);
+            
+            // Ice cracks
+            ctx.strokeStyle = '#90CAF9';
+            ctx.lineWidth = 1;
+            for (let i = 0; i < 10; i++) {
+                const x = i * 80 + Math.random() * 20;
+                ctx.beginPath();
+                ctx.moveTo(x, ground.y + 5);
+                ctx.lineTo(x + 10 + Math.random() * 20, ground.y + 5);
+                ctx.stroke();
+            }
+            
+            ctx.restore();
+        }
+
+        // Draw background
+        function drawBackground() {
+            // Sky gradient
+            const gradient = ctx.createLinearGradient(0, 0, 0, canvas.height);
+            gradient.addColorStop(0, '#87CEEB');
+            gradient.addColorStop(1, '#1E90FF');
+            ctx.fillStyle = gradient;
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            
+            // Distant mountains
+            ctx.fillStyle = '#4A6B8A';
+            ctx.beginPath();
+            ctx.moveTo(0, canvas.height);
+            ctx.lineTo(200, 200);
+            ctx.lineTo(400, 150);
+            ctx.lineTo(600, 250);
+            ctx.lineTo(800, 100);
+            ctx.lineTo(800, canvas.height);
+            ctx.closePath();
+            ctx.fill();
+            
+            // Snow particles in background
+            ctx.fillStyle = 'rgba(255,255,255,0.6)';
+            for (let i = 0; i < 50; i++) {
+                const x = (i * 17 + Date.now() * 0.01) % canvas.width;
+                const y = (i * 23 + Date.now() * 0.02) % canvas.height;
+                ctx.beginPath();
+                ctx.arc(x, y, 1, 0, Math.PI * 2);
+                ctx.fill();
+            }
+        }
+
+        // Draw everything
+        function draw() {
+            // Clear canvas
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            // Draw background
+            drawBackground();
+
+            // Draw ground
+            drawGround();
+
+            // Draw platforms
+            for (let platform of platforms) {
+                drawPlatform(platform);
+            }
+
+            // Draw fish
+            for (let f of fish) {
+                if (!f.collected) {
+                    drawFish(f);
                 }
-                
-                // Add some horizontal movement
-                particle.x += Math.sin(Date.now() * 0.001 + particle.y * 0.01) * 0.5;
+            }
+
+            // Draw sharks
+            for (let shark of sharks) {
+                drawShark(shark);
+            }
+
+            // Draw player
+            drawPenguin();
+
+            // Draw pause indicator
+            if (gamePaused) {
+                ctx.fillStyle = 'rgba(0,0,0,0.7)';
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+                ctx.fillStyle = '#FFD700';
+                ctx.font = '32px "Press Start 2P"';
+                ctx.textAlign = 'center';
+                ctx.fillText('PAUSED', canvas.width/2, canvas.height/2 - 20);
+                ctx.font = '12px "Press Start 2P"';
+                ctx.fillText('PRESS P TO RESUME', canvas.width/2, canvas.height/2 + 20);
             }
         }
 
@@ -505,25 +669,30 @@
             }
 
             // Jumping
-            if (keys.Space && !player.isJumping && isOnPlatform()) {
+            if ((keys.Space || keys.ArrowUp) && player.onGround) {
                 player.velocityY = -player.jumpForce;
                 player.isJumping = true;
+                player.onGround = false;
             }
 
             // Apply gravity
-            player.velocityY += 0.8;
+            player.velocityY += gravity;
             player.y += player.velocityY;
 
-            // Check if player is on a platform
-            if (isOnPlatform() && player.velocityY > 0) {
-                player.y = platforms.find(platform => 
-                    player.y + player.height >= platform.y &&
-                    player.y + player.height <= platform.y + platform.height &&
-                    player.x + player.width > platform.x &&
-                    player.x < platform.x + platform.width
-                ).y - player.height;
+            // Check if player is on ground or platform
+            const currentPlatform = getCurrentPlatform();
+            if (currentPlatform && player.velocityY > 0) {
+                player.y = currentPlatform.y - player.height;
                 player.velocityY = 0;
                 player.isJumping = false;
+                player.onGround = true;
+            } else if (player.y + player.height > ground.y && player.velocityY > 0) {
+                player.y = ground.y - player.height;
+                player.velocityY = 0;
+                player.isJumping = false;
+                player.onGround = true;
+            } else {
+                player.onGround = false;
             }
 
             // Screen boundaries
@@ -537,6 +706,7 @@
                 player.y = canvas.height - player.height;
                 player.velocityY = 0;
                 player.isJumping = false;
+                player.onGround = true;
             }
         }
 
@@ -546,48 +716,37 @@
 
             for (let i = 0; i < fish.length; i++) {
                 if (!fish[i].collected) {
-                    // Fish float up and down
-                    fish[i].y += Math.sin(Date.now() * 0.001 + i) * 0.5;
+                    // Fish wobble
+                    fish[i].wobble += 0.05;
                     
                     // Check collision with player
                     if (checkCollision(player, fish[i])) {
                         fish[i].collected = true;
-                        score += 10;
+                        score += 100;
                         fishCollected++;
                         
                         // Check if level is complete
                         if (fishCollected >= fishToWin) {
-                            level++;
-                            fishToWin = Math.floor(fishToWin * 1.5);
-                            fishCollected = 0;
-                            
-                            // Add more fish and sharks
-                            for (let j = 0; j < 5; j++) {
-                                fish.push({
-                                    x: Math.random() * (canvas.width - 30),
-                                    y: Math.random() * (canvas.height - 200) + 50,
-                                    width: 25,
-                                    height: 15,
-                                    color: '#FF6B6B',
-                                    collected: false
-                                });
-                            }
-                            
-                            for (let j = 0; j < 1; j++) {
-                                sharks.push({
-                                    x: Math.random() * (canvas.width - 60),
-                                    y: Math.random() * (canvas.height - 300) + 100,
-                                    width: 50,
-                                    height: 30,
-                                    speed: 2 + Math.random() * 2 + level * 0.5,
-                                    direction: Math.random() > 0.5 ? 1 : -1,
-                                    color: '#808080'
-                                });
-                            }
+                            levelComplete();
                         }
                     }
                 }
             }
+        }
+
+        // Level complete
+        function levelComplete() {
+            gameRunning = false;
+            levelUpScreen.style.display = 'block';
+            levelMessage.textContent = `LEVEL ${level + 1} STARTING...`;
+            
+            setTimeout(() => {
+                level++;
+                fishToWin = Math.min(10, 5 + level * 2);
+                fishCollected = 0;
+                levelUpScreen.style.display = 'none';
+                init();
+            }, 2000);
         }
 
         // Update sharks
@@ -595,100 +754,38 @@
             if (!gameRunning || gamePaused) return;
 
             for (let shark of sharks) {
-                // Move shark
+                // Move shark back and forth on platform
                 shark.x += shark.speed * shark.direction;
                 
-                // Change direction when hitting boundaries
-                if (shark.x < 0 || shark.x + shark.width > canvas.width) {
+                // Check boundaries
+                if (shark.x < shark.startX || shark.x + shark.width > shark.startX + shark.range) {
                     shark.direction *= -1;
                 }
                 
                 // Check collision with player
-                if (checkCollision(player, shark)) {
+                if (!invincible && checkCollision(player, shark)) {
                     lives--;
-                    score = Math.max(0, score - 50);
+                    invincible = true;
+                    invincibleTimer = Date.now();
                     
                     // Reset player position
                     player.x = 100;
-                    player.y = 400;
+                    player.y = ground.y - player.height;
                     player.velocityY = 0;
                     player.isJumping = false;
+                    player.onGround = true;
                     
                     if (lives <= 0) {
                         gameRunning = false;
-                        finalScoreDisplay.textContent = `Final Score: ${score}`;
+                        finalScoreDisplay.textContent = `FINAL SCORE: ${score}`;
                         gameOverScreen.style.display = 'block';
                     }
                 }
             }
-        }
-
-        // Update ice blocks
-        function updateIceBlocks() {
-            if (!gameRunning || gamePaused) return;
-
-            for (let block of iceBlocks) {
-                // Check collision with player
-                if (checkCollision(player, block)) {
-                    // Ice blocks are slippery - move player
-                    if (keys.ArrowLeft) {
-                        player.x -= 2;
-                    } else if (keys.ArrowRight) {
-                        player.x += 2;
-                    }
-                }
-            }
-        }
-
-        // Draw everything
-        function draw() {
-            // Clear canvas
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-            // Draw background (ocean)
-            ctx.fillStyle = '#1E90FF';
-            ctx.fillRect(0, 0, canvas.width, canvas.height);
-
-            // Draw ice platforms (ground)
-            ctx.fillStyle = '#F0F8FF';
-            ctx.fillRect(0, canvas.height - 50, canvas.width, 50);
-
-            // Draw platforms
-            for (let platform of platforms) {
-                drawPlatform(platform);
-            }
-
-            // Draw ice blocks
-            for (let block of iceBlocks) {
-                drawIceBlock(block);
-            }
-
-            // Draw fish
-            for (let f of fish) {
-                if (!f.collected) {
-                    drawFish(f);
-                }
-            }
-
-            // Draw sharks
-            for (let shark of sharks) {
-                drawShark(shark);
-            }
-
-            // Draw snow
-            drawSnow();
-
-            // Draw player
-            drawPenguin();
-
-            // Draw pause indicator
-            if (gamePaused) {
-                ctx.fillStyle = 'rgba(0,0,0,0.5)';
-                ctx.fillRect(0, 0, canvas.width, canvas.height);
-                ctx.fillStyle = '#FFF';
-                ctx.font = '48px Arial';
-                ctx.textAlign = 'center';
-                ctx.fillText('PAUSED', canvas.width/2, canvas.height/2);
+            
+            // Update invincibility
+            if (invincible && Date.now() - invincibleTimer > 2000) {
+                invincible = false;
             }
         }
 
@@ -698,8 +795,6 @@
                 updatePlayer();
                 updateFish();
                 updateSharks();
-                updateIceBlocks();
-                updateSnow();
                 updateScoreDisplay();
             }
             
@@ -708,7 +803,6 @@
             if (!gamePaused) {
                 requestAnimationFrame(gameLoop);
             } else {
-                // If paused, keep drawing but don't update
                 setTimeout(() => {
                     draw();
                     if (gamePaused) {
