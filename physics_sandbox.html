@@ -3,10 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PHYSICS SANDBOX - WORKING</title>
+    <title>PHYSICS SANDBOX - FIXED</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             background: #111;
@@ -14,9 +13,7 @@
             height: 100vh;
             overflow: hidden;
         }
-        
         #container { display: flex; height: 100vh; }
-        
         #sidebar {
             width: 280px;
             background: #1a1a1a;
@@ -24,9 +21,7 @@
             border-right: 2px solid #333;
             overflow-y: auto;
         }
-        
         #canvas-container { flex: 1; position: relative; }
-        
         #physics-canvas {
             width: 100%;
             height: 100%;
@@ -34,14 +29,12 @@
             display: block;
             cursor: crosshair;
         }
-        
         h1 {
             font-size: 20px;
             color: #00ff88;
             margin-bottom: 15px;
             text-align: center;
         }
-        
         h3 {
             font-size: 13px;
             color: #888;
@@ -49,21 +42,18 @@
             border-bottom: 1px solid #333;
             padding-bottom: 4px;
         }
-        
         .control-group {
             margin-bottom: 15px;
             background: #1e1e1e;
             padding: 12px;
             border-radius: 6px;
         }
-        
         label {
             display: block;
             margin: 6px 0 3px 0;
             font-size: 11px;
             color: #ccc;
         }
-        
         input[type="range"] {
             width: 100%;
             height: 6px;
@@ -72,7 +62,6 @@
             border-radius: 3px;
             outline: none;
         }
-        
         input[type="range"]::-webkit-slider-thumb {
             -webkit-appearance: none;
             width: 16px;
@@ -81,14 +70,12 @@
             border-radius: 50%;
             cursor: pointer;
         }
-        
         .value-display {
             font-size: 10px;
             color: #666;
             text-align: right;
             margin-top: 2px;
         }
-        
         button {
             background: #00ff88;
             color: #000;
@@ -101,15 +88,11 @@
             cursor: pointer;
             border-radius: 4px;
         }
-        
         button:hover { background: #00e67a; }
         button:active { background: #00cc6a; }
-        
         #mode-selector { display: flex; gap: 4px; margin: 8px 0; }
         #mode-selector button { flex: 1; font-size: 10px; padding: 5px; }
-        
         .mode-active { background: #ffff00 !important; color: #000 !important; }
-        
         select, input[type="color"] {
             width: 100%;
             padding: 4px;
@@ -119,16 +102,13 @@
             border: 1px solid #444;
             border-radius: 3px;
         }
-        
         .checkbox-label {
             display: flex;
             align-items: center;
             margin: 4px 0;
             font-size: 11px;
         }
-        
         .checkbox-label input { margin-right: 6px; }
-        
         #stats {
             position: absolute;
             top: 8px;
@@ -138,16 +118,6 @@
             border-radius: 4px;
             font-size: 10px;
             font-family: monospace;
-        }
-        
-        #instructions {
-            position: absolute;
-            bottom: 8px;
-            left: 8px;
-            background: rgba(0,0,0,0.7);
-            padding: 6px 10px;
-            border-radius: 4px;
-            font-size: 10px;
         }
     </style>
 </head>
@@ -170,17 +140,17 @@
             <div class="control-group">
                 <h3>PHYSICS</h3>
                 
-                <label>Gravity</label>
-                <input type="range" id="gravity" min="0" max="2" step="0.01" value="0.5">
-                <span class="value-display" id="gravity-val">0.50</span>
+                <label>Gravity Strength</label>
+                <input type="range" id="gravity" min="0" max="3" step="0.05" value="1">
+                <span class="value-display" id="gravity-val">1.00</span>
                 
-                <label>Friction</label>
-                <input type="range" id="friction" min="0" max="1" step="0.01" value="0.98">
-                <span class="value-display" id="friction-val">0.98</span>
+                <label>Friction (0=no friction)</label>
+                <input type="range" id="friction" min="0.9" max="1" step="0.005" value="0.995">
+                <span class="value-display" id="friction-val">0.995</span>
                 
-                <label>Bounce</label>
-                <input type="range" id="bounce" min="0" max="1" step="0.01" value="0.7">
-                <span class="value-display" id="bounce-val">0.70</span>
+                <label>Bounciness</label>
+                <input type="range" id="bounce" min="0" max="1" step="0.05" value="0.8">
+                <span class="value-display" id="bounce-val">0.80</span>
                 
                 <div class="checkbox-label">
                     <input type="checkbox" id="gravity-on" checked>
@@ -204,8 +174,8 @@
                 <input type="range" id="obj-size" min="10" max="80" value="30">
                 <span class="value-display" id="obj-size-val">30</span>
                 
-                <label>Mass</label>
-                <input type="range" id="obj-mass" min="1" max="50" value="10">
+                <label>Mass (heavier = slower)</label>
+                <input type="range" id="obj-mass" min="1" max="100" value="10">
                 <span class="value-display" id="obj-mass-val">10</span>
                 
                 <label>Color</label>
@@ -213,7 +183,7 @@
                 
                 <div class="checkbox-label">
                     <input type="checkbox" id="obj-fixed">
-                    <span>Fixed</span>
+                    <span>Fixed (Immovable)</span>
                 </div>
                 
                 <button id="add-center">ADD AT CENTER</button>
@@ -225,6 +195,7 @@
                 <button id="preset-pendulum">Pendulum</button>
                 <button id="preset-domino">Domino</button>
                 <button id="preset-orbit">Orbit</button>
+                <button id="preset-wall">Wall</button>
             </div>
             
             <div class="control-group">
@@ -233,7 +204,7 @@
                     LEFT: Add/Grab/Connect/Delete<br>
                     RIGHT: Pan camera<br>
                     SCROLL: Zoom<br>
-                    SHIFT: Multi-select
+                    <strong>DRAG & RELEASE = THROW!</strong>
                 </p>
             </div>
         </div>
@@ -279,7 +250,10 @@
             dragOffsetX: 0,
             dragOffsetY: 0,
             lastX: 0,
-            lastY: 0
+            lastY: 0,
+            lastTime: 0,
+            vx: 0,
+            vy: 0
         };
         
         // Convert screen to world
@@ -300,9 +274,9 @@
         
         // ========== PHYSICS ==========
         const physics = {
-            gravity: 0.5,
-            friction: 0.98,
-            bounce: 0.7,
+            gravity: 1.0,
+            friction: 0.995,
+            bounce: 0.8,
             gravityOn: true,
             collisionsOn: true
         };
@@ -327,13 +301,17 @@
             update(dt) {
                 if (this.fixed) return;
                 
-                if (physics.gravityOn) this.vy += physics.gravity * dt;
+                if (physics.gravityOn) {
+                    this.vy += physics.gravity * dt * 60; // Scale by 60 for 60fps feel
+                }
                 
+                // Apply friction
                 this.vx *= physics.friction;
                 this.vy *= physics.friction;
                 
-                this.x += this.vx * dt;
-                this.y += this.vy * dt;
+                // Update position
+                this.x += this.vx * dt * 60;
+                this.y += this.vy * dt * 60;
             }
             
             draw() {
@@ -370,13 +348,15 @@
             update(dt) {
                 if (this.fixed) return;
                 
-                if (physics.gravityOn) this.vy += physics.gravity * dt;
+                if (physics.gravityOn) {
+                    this.vy += physics.gravity * dt * 60;
+                }
                 
                 this.vx *= physics.friction;
                 this.vy *= physics.friction;
                 
-                this.x += this.vx * dt;
-                this.y += this.vy * dt;
+                this.x += this.vx * dt * 60;
+                this.y += this.vy * dt * 60;
             }
             
             draw() {
@@ -421,7 +401,6 @@
                 const circle = a.type === 'circle' ? a : b;
                 const rect = a.type === 'circle' ? b : a;
                 
-                // Find closest point on rect to circle
                 let closestX = Math.max(rect.x - rect.w/2, Math.min(circle.x, rect.x + rect.w/2));
                 let closestY = Math.max(rect.y - rect.h/2, Math.min(circle.y, rect.y + rect.h/2));
                 
@@ -444,10 +423,10 @@
                 
                 if (overlap <= 0) return;
                 
-                // Position correction
                 const nx = dx / dist;
                 const ny = dy / dist;
                 
+                // Position correction
                 if (!a.fixed && !b.fixed) {
                     a.x -= nx * overlap/2;
                     a.y -= ny * overlap/2;
@@ -469,19 +448,19 @@
                 if (velAlongNormal > 0) return;
                 
                 const j = -(1 + physics.bounce) * velAlongNormal;
-                const impulse = j / (a.fixed ? b.mass : (b.fixed ? a.mass : a.mass + b.mass));
+                const totalMass = a.fixed ? b.mass : (b.fixed ? a.mass : a.mass + b.mass);
+                const impulse = j / totalMass;
                 
                 if (!a.fixed) {
-                    a.vx -= impulse * nx * (b.fixed ? 1 : b.mass);
-                    a.vy -= impulse * ny * (b.fixed ? 1 : b.mass);
+                    a.vx -= impulse * nx * (b.fixed ? b.mass : b.mass);
+                    a.vy -= impulse * ny * (b.fixed ? b.mass : b.mass);
                 }
                 if (!b.fixed) {
-                    b.vx += impulse * nx * (a.fixed ? 1 : a.mass);
-                    b.vy += impulse * ny * (a.fixed ? 1 : a.mass);
+                    b.vx += impulse * nx * (a.fixed ? a.mass : a.mass);
+                    b.vy += impulse * ny * (a.fixed ? a.mass : a.mass);
                 }
             }
             
-            // Rect-rect collision
             if (a.type === 'rect' && b.type === 'rect') {
                 const overlapX = Math.min(a.x + a.w/2, b.x + b.w/2) - Math.max(a.x - a.w/2, b.x - b.w/2);
                 const overlapY = Math.min(a.y + a.h/2, b.y + b.h/2) - Math.max(a.y - a.h/2, b.y - b.h/2);
@@ -513,15 +492,16 @@
                 if (velAlongNormal > 0) return;
                 
                 const j = -(1 + physics.bounce) * velAlongNormal;
-                const impulse = j / (a.fixed ? b.mass : (b.fixed ? a.mass : a.mass + b.mass));
+                const totalMass = a.fixed ? b.mass : (b.fixed ? a.mass : a.mass + b.mass);
+                const impulse = j / totalMass;
                 
                 if (!a.fixed) {
-                    a.vx -= impulse * nx * (b.fixed ? 1 : b.mass);
-                    a.vy -= impulse * ny * (b.fixed ? 1 : b.mass);
+                    a.vx -= impulse * nx * (b.fixed ? b.mass : b.mass);
+                    a.vy -= impulse * ny * (b.fixed ? b.mass : b.mass);
                 }
                 if (!b.fixed) {
-                    b.vx += impulse * nx * (a.fixed ? 1 : a.mass);
-                    b.vy += impulse * ny * (a.fixed ? 1 : a.mass);
+                    b.vx += impulse * nx * (a.fixed ? a.mass : a.mass);
+                    b.vy += impulse * ny * (a.fixed ? a.mass : a.mass);
                 }
             }
         }
@@ -595,6 +575,20 @@
             }
         }
         
+        function makeWall() {
+            clearAll();
+            // Fixed wall
+            for (let i = 0; i < 5; i++) {
+                const block = addObject('rect', i * 40 - 100, 0);
+                block.fixed = true;
+                block.w = 35; block.h = 20;
+            }
+            // Bouncing ball
+            const ball = addObject('circle', -200, -100);
+            ball.vx = 10;
+            ball.vy = -5;
+        }
+        
         // ========== EVENT HANDLERS ==========
         
         // Mode buttons
@@ -606,7 +600,7 @@
         document.getElementById('mode-grab').addEventListener('click', () => {
             mode = 'grab';
             updateModeButtons();
-            modeDesc.textContent = 'Click and drag to move';
+            modeDesc.textContent = 'Click & drag to move/throw';
         });
         document.getElementById('mode-connect').addEventListener('click', () => {
             mode = 'connect';
@@ -632,7 +626,7 @@
         });
         document.getElementById('friction').addEventListener('input', e => {
             physics.friction = parseFloat(e.target.value);
-            document.getElementById('friction-val').textContent = physics.friction.toFixed(2);
+            document.getElementById('friction-val').textContent = physics.friction.toFixed(3);
         });
         document.getElementById('bounce').addEventListener('input', e => {
             physics.bounce = parseFloat(e.target.value);
@@ -661,6 +655,7 @@
         document.getElementById('preset-pendulum').addEventListener('click', makePendulum);
         document.getElementById('preset-domino').addEventListener('click', makeDomino);
         document.getElementById('preset-orbit').addEventListener('click', makeOrbit);
+        document.getElementById('preset-wall').addEventListener('click', makeWall);
         
         // Canvas events
         canvas.addEventListener('mousedown', e => {
@@ -672,6 +667,9 @@
             mouse.y = world.y;
             mouse.lastX = mouse.x;
             mouse.lastY = mouse.y;
+            mouse.lastTime = Date.now();
+            mouse.vx = 0;
+            mouse.vy = 0;
             
             if (e.button === 2) {
                 mouse.rightDown = true;
@@ -699,7 +697,6 @@
                         if (connectObj1 === null) {
                             connectObj1 = obj;
                         } else if (connectObj1 !== obj) {
-                            // Create spring
                             const dx = obj.x - connectObj1.x;
                             const dy = obj.y - connectObj1.y;
                             const dist = Math.sqrt(dx*dx + dy*dy);
@@ -729,6 +726,16 @@
             mouse.screenX = e.clientX - rect.left;
             mouse.screenY = e.clientY - rect.top;
             const world = toWorld(mouse.screenX, mouse.screenY);
+            const now = Date.now();
+            const dt = (now - mouse.lastTime) / 1000;
+            mouse.lastTime = now;
+            
+            // Calculate mouse velocity
+            if (dt > 0 && dt < 0.1) {
+                mouse.vx = (world.x - mouse.x) / dt;
+                mouse.vy = (world.y - mouse.y) / dt;
+            }
+            
             mouse.x = world.x;
             mouse.y = world.y;
             
@@ -744,11 +751,24 @@
                 mouse.draggedObj.x = mouse.x + mouse.dragOffsetX;
                 mouse.draggedObj.y = mouse.y + mouse.dragOffsetY;
             }
+            
+            mouse.lastX = mouse.x;
+            mouse.lastY = mouse.y;
         });
         
         canvas.addEventListener('mouseup', e => {
-            if (e.button === 2) mouse.rightDown = false;
+            if (e.button === 2) {
+                mouse.rightDown = false;
+                return;
+            }
+            
             if (e.button === 0) {
+                // Transfer mouse velocity to object on release
+                if (mouse.draggedObj && !mouse.draggedObj.fixed) {
+                    // Scale mouse velocity for throwing
+                    mouse.draggedObj.vx = mouse.vx * 0.3;
+                    mouse.draggedObj.vy = mouse.vy * 0.3;
+                }
                 mouse.down = false;
                 mouse.draggedObj = null;
             }
@@ -789,12 +809,12 @@
                 const force = spring.stiffness * (dist - spring.length);
                 
                 if (!spring.obj1.fixed) {
-                    spring.obj1.vx += force * dx / dist / spring.obj1.mass * dt * 100;
-                    spring.obj1.vy += force * dy / dist / spring.obj1.mass * dt * 100;
+                    spring.obj1.vx += force * dx / dist / spring.obj1.mass * dt * 60;
+                    spring.obj1.vy += force * dy / dist / spring.obj1.mass * dt * 60;
                 }
                 if (!spring.obj2.fixed) {
-                    spring.obj2.vx -= force * dx / dist / spring.obj2.mass * dt * 100;
-                    spring.obj2.vy -= force * dy / dist / spring.obj2.mass * dt * 100;
+                    spring.obj2.vx -= force * dx / dist / spring.obj2.mass * dt * 60;
+                    spring.obj2.vy -= force * dy / dist / spring.obj2.mass * dt * 60;
                 }
             }
             
