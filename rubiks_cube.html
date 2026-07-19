@@ -1,0 +1,704 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rubik's Cube - Interactive 3D</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            background: #111;
+            color: #fff;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+        }
+        
+        h1 {
+            text-align: center;
+            margin-bottom: 10px;
+            text-shadow: 0 0 20px rgba(255,255,255,0.5);
+            background: linear-gradient(90deg, #ff006e, #8338ec, #3a86ff, #06ffa5);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+        
+        .subtitle {
+            color: #888;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        
+        #container {
+            display: flex;
+            gap: 40px;
+            flex-wrap: wrap;
+            justify-content: center;
+            align-items: flex-start;
+        }
+        
+        #cube-wrapper {
+            perspective: 1000px;
+            width: 400px;
+            height: 400px;
+            position: relative;
+        }
+        
+        #cube {
+            width: 100%;
+            height: 100%;
+            position: relative;
+            transform-style: preserve-3d;
+            animation: spin 10s linear infinite;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotateX(0deg) rotateY(0deg); }
+            100% { transform: rotateX(360deg) rotateY(360deg); }
+        }
+        
+        #cube.paused {
+            animation: none;
+        }
+        
+        .face {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            border: 2px solid rgba(255,255,255,0.1);
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            grid-template-rows: repeat(3, 1fr);
+        }
+        
+        .sticker {
+            margin: 2px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 24px;
+            font-weight: bold;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            user-select: none;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+        }
+        
+        .sticker:hover {
+            transform: scale(1.1);
+            box-shadow: 0 0 25px rgba(255,255,255,0.8);
+            z-index: 10;
+        }
+        
+        /* Face positions */
+        .front  { transform: rotateY(  0deg) translateZ(100px); background: rgba(0,100,0,0.3); }
+        .back   { transform: rotateY(180deg) translateZ(100px); background: rgba(0,0,150,0.3); }
+        .right  { transform: rotateY( 90deg) translateZ(100px); background: rgba(150,0,0,0.3); }
+        .left   { transform: rotateY(-90deg) translateZ(100px); background: rgba(255,140,0,0.3); }
+        .up     { transform: rotateX( 90deg) translateZ(100px); background: rgba(255,255,255,0.3); }
+        .down   { transform: rotateX(-90deg) translateZ(100px); background: rgba(255,255,0,0.3); }
+        
+        /* Sticker colors */
+        .color-W { background: #fff; color: #000; }
+        .color-Y { background: #ff0; color: #000; }
+        .color-R { background: #f00; color: #fff; }
+        .color-O { background: #ff8c00; color: #000; }
+        .color-G { background: #0f0; color: #000; }
+        .color-B { background: #00f; color: #fff; }
+        
+        .controls {
+            background: rgba(0,0,0,0.7);
+            padding: 20px;
+            border-radius: 15px;
+            min-width: 300px;
+            backdrop-filter: blur(10px);
+        }
+        
+        .controls h2 {
+            margin-bottom: 15px;
+            color: #06ffa5;
+        }
+        
+        .button-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        
+        .button-row {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+        
+        button {
+            padding: 12px 20px;
+            font-size: 18px;
+            font-weight: bold;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            background: rgba(255,255,255,0.1);
+            color: #fff;
+        }
+        
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(0,0,0,0.5);
+            background: rgba(255,255,255,0.2);
+        }
+        
+        button:active {
+            transform: translateY(0);
+        }
+        
+        button.face-R { background: rgba(255,0,0,0.3); }
+        button.face-L { background: rgba(255,140,0,0.3); }
+        button.face-U { background: rgba(255,255,255,0.3); color: #000; }
+        button.face-D { background: rgba(255,255,0,0.3); color: #000; }
+        button.face-F { background: rgba(0,100,0,0.3); }
+        button.face-B { background: rgba(0,0,255,0.3); }
+        
+        button.prime {
+            background: rgba(100,100,100,0.5) !important;
+        }
+        
+        .status {
+            margin-top: 20px;
+            padding: 15px;
+            background: rgba(0,0,0,0.5);
+            border-radius: 10px;
+            font-family: monospace;
+            white-space: pre-wrap;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+        
+        .status::-webkit-scrollbar {
+            width: 8px;
+        }
+        
+        .status::-webkit-scrollbar-track {
+            background: #333;
+            border-radius: 10px;
+        }
+        
+        .status::-webkit-scrollbar-thumb {
+            background: #555;
+            border-radius: 10px;
+        }
+        
+        .scramble-btn {
+            background: linear-gradient(90deg, #ff006e, #8338ec, #3a86ff, #06ffa5);
+            border: none;
+            padding: 15px;
+            font-size: 18px;
+            font-weight: bold;
+            border-radius: 10px;
+            cursor: pointer;
+            width: 100%;
+            margin-bottom: 15px;
+        }
+        
+        .scramble-btn:hover {
+            transform: scale(1.02);
+            box-shadow: 0 0 30px rgba(255,255,255,0.5);
+        }
+        
+        @media (max-width: 900px) {
+            #container {
+                flex-direction: column;
+                align-items: center;
+            }
+            #cube-wrapper {
+                width: 300px;
+                height: 300px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <h1>🧊 Interactive Rubik's Cube</h1>
+    <p class="subtitle">Click faces to rotate • Use buttons or keyboard</p>
+    
+    <div id="container">
+        <div id="cube-wrapper">
+            <div id="cube">
+                <div class="face front">
+                    <div class="sticker color-G" data-face="front" data-row="0" data-col="0">G</div>
+                    <div class="sticker color-G" data-face="front" data-row="0" data-col="1">G</div>
+                    <div class="sticker color-G" data-face="front" data-row="0" data-col="2">G</div>
+                    <div class="sticker color-G" data-face="front" data-row="1" data-col="0">G</div>
+                    <div class="sticker color-G" data-face="front" data-row="1" data-col="1">G</div>
+                    <div class="sticker color-G" data-face="front" data-row="1" data-col="2">G</div>
+                    <div class="sticker color-G" data-face="front" data-row="2" data-col="0">G</div>
+                    <div class="sticker color-G" data-face="front" data-row="2" data-col="1">G</div>
+                    <div class="sticker color-G" data-face="front" data-row="2" data-col="2">G</div>
+                </div>
+                <div class="face back">
+                    <div class="sticker color-B" data-face="back" data-row="0" data-col="0">B</div>
+                    <div class="sticker color-B" data-face="back" data-row="0" data-col="1">B</div>
+                    <div class="sticker color-B" data-face="back" data-row="0" data-col="2">B</div>
+                    <div class="sticker color-B" data-face="back" data-row="1" data-col="0">B</div>
+                    <div class="sticker color-B" data-face="back" data-row="1" data-col="1">B</div>
+                    <div class="sticker color-B" data-face="back" data-row="1" data-col="2">B</div>
+                    <div class="sticker color-B" data-face="back" data-row="2" data-col="0">B</div>
+                    <div class="sticker color-B" data-face="back" data-row="2" data-col="1">B</div>
+                    <div class="sticker color-B" data-face="back" data-row="2" data-col="2">B</div>
+                </div>
+                <div class="face right">
+                    <div class="sticker color-R" data-face="right" data-row="0" data-col="0">R</div>
+                    <div class="sticker color-R" data-face="right" data-row="0" data-col="1">R</div>
+                    <div class="sticker color-R" data-face="right" data-row="0" data-col="2">R</div>
+                    <div class="sticker color-R" data-face="right" data-row="1" data-col="0">R</div>
+                    <div class="sticker color-R" data-face="right" data-row="1" data-col="1">R</div>
+                    <div class="sticker color-R" data-face="right" data-row="1" data-col="2">R</div>
+                    <div class="sticker color-R" data-face="right" data-row="2" data-col="0">R</div>
+                    <div class="sticker color-R" data-face="right" data-row="2" data-col="1">R</div>
+                    <div class="sticker color-R" data-face="right" data-row="2" data-col="2">R</div>
+                </div>
+                <div class="face left">
+                    <div class="sticker color-O" data-face="left" data-row="0" data-col="0">O</div>
+                    <div class="sticker color-O" data-face="left" data-row="0" data-col="1">O</div>
+                    <div class="sticker color-O" data-face="left" data-row="0" data-col="2">O</div>
+                    <div class="sticker color-O" data-face="left" data-row="1" data-col="0">O</div>
+                    <div class="sticker color-O" data-face="left" data-row="1" data-col="1">O</div>
+                    <div class="sticker color-O" data-face="left" data-row="1" data-col="2">O</div>
+                    <div class="sticker color-O" data-face="left" data-row="2" data-col="0">O</div>
+                    <div class="sticker color-O" data-face="left" data-row="2" data-col="1">O</div>
+                    <div class="sticker color-O" data-face="left" data-row="2" data-col="2">O</div>
+                </div>
+                <div class="face up">
+                    <div class="sticker color-W" data-face="up" data-row="0" data-col="0">W</div>
+                    <div class="sticker color-W" data-face="up" data-row="0" data-col="1">W</div>
+                    <div class="sticker color-W" data-face="up" data-row="0" data-col="2">W</div>
+                    <div class="sticker color-W" data-face="up" data-row="1" data-col="0">W</div>
+                    <div class="sticker color-W" data-face="up" data-row="1" data-col="1">W</div>
+                    <div class="sticker color-W" data-face="up" data-row="1" data-col="2">W</div>
+                    <div class="sticker color-W" data-face="up" data-row="2" data-col="0">W</div>
+                    <div class="sticker color-W" data-face="up" data-row="2" data-col="1">W</div>
+                    <div class="sticker color-W" data-face="up" data-row="2" data-col="2">W</div>
+                </div>
+                <div class="face down">
+                    <div class="sticker color-Y" data-face="down" data-row="0" data-col="0">Y</div>
+                    <div class="sticker color-Y" data-face="down" data-row="0" data-col="1">Y</div>
+                    <div class="sticker color-Y" data-face="down" data-row="0" data-col="2">Y</div>
+                    <div class="sticker color-Y" data-face="down" data-row="1" data-col="0">Y</div>
+                    <div class="sticker color-Y" data-face="down" data-row="1" data-col="1">Y</div>
+                    <div class="sticker color-Y" data-face="down" data-row="1" data-col="2">Y</div>
+                    <div class="sticker color-Y" data-face="down" data-row="2" data-col="0">Y</div>
+                    <div class="sticker color-Y" data-face="down" data-row="2" data-col="1">Y</div>
+                    <div class="sticker color-Y" data-face="down" data-row="2" data-col="2">Y</div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="controls">
+            <h2>Controls</h2>
+            <button class="scramble-btn" onclick="scramble()">🔀 SCRAMBLE</button>
+            <button onclick="reset()" style="width: 100%; margin-bottom: 15px;">🔄 RESET</button>
+            
+            <div class="button-grid">
+                <button class="face-U" onclick="rotate('U')">U</button>
+                <button class="face-D prime" onclick="rotate('U', true)">U'</button>
+                <button onclick="toggleSpin()" style="grid-column: span 1;">⏸️/▶️</button>
+            </div>
+            
+            <div class="button-row">
+                <button class="face-L" onclick="rotate('L')">L</button>
+                <button class="face-F" onclick="rotate('F')">F</button>
+                <button class="face-R" onclick="rotate('R')">R</button>
+            </div>
+            
+            <div class="button-row">
+                <button class="face-L prime" onclick="rotate('L', true)">L'</button>
+                <button class="face-F prime" onclick="rotate('F', true)">F'</button>
+                <button class="face-R prime" onclick="rotate('R', true)">R'</button>
+            </div>
+            
+            <div class="button-row">
+                <button class="face-B" onclick="rotate('B')">B</button>
+                <button class="face-D" onclick="rotate('D')">D</button>
+                <button></button>
+            </div>
+            
+            <div class="button-row">
+                <button class="face-B prime" onclick="rotate('B', true)">B'</button>
+                <button class="face-D prime" onclick="rotate('D', true)">D'</button>
+                <button></button>
+            </div>
+            
+            <div class="status" id="status">Ready! Click buttons or faces to rotate.</div>
+        </div>
+    </div>
+    
+    <script>
+        // Cube state: 6 faces, each 3x3
+        // Face order: front, back, right, left, up, down
+        const COLORS = {
+            'W': { name: 'White', bg: '#ffffff', text: '#000000' },
+            'Y': { name: 'Yellow', bg: '#ffff00', text: '#000000' },
+            'R': { name: 'Red', bg: '#ff0000', text: '#ffffff' },
+            'O': { name: 'Orange', bg: '#ff8c00', text: '#000000' },
+            'G': { name: 'Green', bg: '#00ff00', text: '#000000' },
+            'B': { name: 'Blue', bg: '#0000ff', text: '#ffffff' }
+        };
+        
+        // Current cube state
+        let cube = {
+            front: [['G','G','G'],['G','G','G'],['G','G','G']],
+            back:  [['B','B','B'],['B','B','B'],['B','B','B']],
+            right: [['R','R','R'],['R','R','R'],['R','R','R']],
+            left:  [['O','O','O'],['O','O','O'],['O','O','O']],
+            up:    [['W','W','W'],['W','W','W'],['W','W','W']],
+            down:  [['Y','Y','Y'],['Y','Y','Y'],['Y','Y','Y']]
+        };
+        
+        let spinEnabled = true;
+        let moveHistory = [];
+        
+        // DOM elements
+        const cubeEl = document.getElementById('cube');
+        const statusEl = document.getElementById('status');
+        
+        // Initialize cube display
+        function updateCubeDisplay() {
+            const faces = ['front', 'back', 'right', 'left', 'up', 'down'];
+            const faceClasses = ['front', 'back', 'right', 'left', 'up', 'down'];
+            
+            for (let i = 0; i < faces.length; i++) {
+                const faceName = faces[i];
+                const faceClass = faceClasses[i];
+                const faceData = cube[faceName];
+                const faceEl = document.querySelector(`.face.${faceClass}`);
+                const stickers = faceEl.querySelectorAll('.sticker');
+                
+                for (let r = 0; r < 3; r++) {
+                    for (let c = 0; c < 3; c++) {
+                        const idx = r * 3 + c;
+                        const color = faceData[r][c];
+                        const sticker = stickers[idx];
+                        sticker.textContent = color;
+                        sticker.className = `sticker color-${color}`;
+                    }
+                }
+            }
+            
+            updateStatus();
+        }
+        
+        function updateStatus() {
+            const solved = isSolved();
+            const status = solved ? '✅ SOLVED!' : '❌ Scrambled';
+            statusEl.textContent = `Status: ${status}\nMoves: ${moveHistory.slice(-10).join(' ')}${moveHistory.length > 10 ? '...' : ''}`;
+        }
+        
+        function isSolved() {
+            for (const face in cube) {
+                const center = cube[face][1][1];
+                for (let r = 0; r < 3; r++) {
+                    for (let c = 0; c < 3; c++) {
+                        if (cube[face][r][c] !== center) {
+                            return false;
+                        }
+                    }
+                }
+            }
+            return true;
+        }
+        
+        function rotate(face, prime = false) {
+            const move = prime ? `${face}'` : face;
+            moveHistory.push(move);
+            
+            // Apply rotation
+            switch(face) {
+                case 'R': doR(prime); break;
+                case 'L': doL(prime); break;
+                case 'U': doU(prime); break;
+                case 'D': doD(prime); break;
+                case 'F': doF(prime); break;
+                case 'B': doB(prime); break;
+            }
+            
+            updateCubeDisplay();
+        }
+        
+        function doR(prime) {
+            // Rotate RIGHT face
+            rotateFace('right', !prime);
+            
+            // Rotate adjacent edges
+            const upCol = [cube.up[0][2], cube.up[1][2], cube.up[2][2]];
+            const frontCol = [cube.front[0][2], cube.front[1][2], cube.front[2][2]];
+            const downCol = [cube.down[0][2], cube.down[1][2], cube.down[2][2]];
+            const backCol = [cube.back[0][0], cube.back[1][0], cube.back[2][0]];
+            
+            if (!prime) {
+                // Clockwise: UP -> FRONT -> DOWN -> BACK -> UP
+                for (let i = 0; i < 3; i++) {
+                    cube.up[i][2] = backCol[2 - i];
+                    cube.front[i][2] = upCol[i];
+                    cube.down[i][2] = frontCol[i];
+                    cube.back[i][0] = downCol[2 - i];
+                }
+            } else {
+                // Counter-clockwise
+                for (let i = 0; i < 3; i++) {
+                    cube.up[i][2] = frontCol[i];
+                    cube.front[i][2] = downCol[i];
+                    cube.down[i][2] = backCol[2 - i];
+                    cube.back[i][0] = upCol[i];
+                }
+            }
+        }
+        
+        function doL(prime) {
+            rotateFace('left', !prime);
+            
+            const upCol = [cube.up[0][0], cube.up[1][0], cube.up[2][0]];
+            const backCol = [cube.back[0][2], cube.back[1][2], cube.back[2][2]];
+            const downCol = [cube.down[0][0], cube.down[1][0], cube.down[2][0]];
+            const frontCol = [cube.front[0][0], cube.front[1][0], cube.front[2][0]];
+            
+            if (!prime) {
+                for (let i = 0; i < 3; i++) {
+                    cube.up[i][0] = frontCol[i];
+                    cube.back[i][2] = upCol[2 - i];
+                    cube.down[i][0] = backCol[2 - i];
+                    cube.front[i][0] = downCol[i];
+                }
+            } else {
+                for (let i = 0; i < 3; i++) {
+                    cube.up[i][0] = backCol[2 - i];
+                    cube.back[i][2] = downCol[i];
+                    cube.down[i][0] = frontCol[i];
+                    cube.front[i][0] = upCol[i];
+                }
+            }
+        }
+        
+        function doU(prime) {
+            rotateFace('up', !prime);
+            
+            const frontRow = [cube.front[0][0], cube.front[0][1], cube.front[0][2]];
+            const rightRow = [cube.right[0][0], cube.right[0][1], cube.right[0][2]];
+            const backRow = [cube.back[0][0], cube.back[0][1], cube.back[0][2]];
+            const leftRow = [cube.left[0][0], cube.left[0][1], cube.left[0][2]];
+            
+            if (!prime) {
+                for (let i = 0; i < 3; i++) {
+                    cube.front[0][i] = leftRow[i];
+                    cube.right[0][i] = frontRow[i];
+                    cube.back[0][i] = rightRow[2 - i];
+                    cube.left[0][i] = backRow[2 - i];
+                }
+            } else {
+                for (let i = 0; i < 3; i++) {
+                    cube.front[0][i] = rightRow[i];
+                    cube.right[0][i] = backRow[2 - i];
+                    cube.back[0][i] = leftRow[2 - i];
+                    cube.left[0][i] = frontRow[i];
+                }
+            }
+        }
+        
+        function doD(prime) {
+            rotateFace('down', !prime);
+            
+            const frontRow = [cube.front[2][0], cube.front[2][1], cube.front[2][2]];
+            const leftRow = [cube.left[2][0], cube.left[2][1], cube.left[2][2]];
+            const backRow = [cube.back[2][0], cube.back[2][1], cube.back[2][2]];
+            const rightRow = [cube.right[2][0], cube.right[2][1], cube.right[2][2]];
+            
+            if (!prime) {
+                for (let i = 0; i < 3; i++) {
+                    cube.front[2][i] = rightRow[i];
+                    cube.left[2][i] = frontRow[i];
+                    cube.back[2][i] = leftRow[2 - i];
+                    cube.right[2][i] = backRow[2 - i];
+                }
+            } else {
+                for (let i = 0; i < 3; i++) {
+                    cube.front[2][i] = leftRow[i];
+                    cube.left[2][i] = backRow[2 - i];
+                    cube.back[2][i] = rightRow[2 - i];
+                    cube.right[2][i] = frontRow[i];
+                }
+            }
+        }
+        
+        function doF(prime) {
+            rotateFace('front', !prime);
+            
+            const upRow = [cube.up[2][0], cube.up[2][1], cube.up[2][2]];
+            const leftCol = [cube.left[0][2], cube.left[1][2], cube.left[2][2]];
+            const downRow = [cube.down[0][0], cube.down[0][1], cube.down[0][2]];
+            const rightCol = [cube.right[0][0], cube.right[1][0], cube.right[2][0]];
+            
+            if (!prime) {
+                for (let i = 0; i < 3; i++) {
+                    cube.up[2][i] = leftCol[2 - i];
+                    cube.left[i][2] = downRow[i];
+                    cube.down[0][i] = rightCol[2 - i];
+                    cube.right[i][0] = upRow[i];
+                }
+            } else {
+                for (let i = 0; i < 3; i++) {
+                    cube.up[2][i] = rightCol[2 - i];
+                    cube.right[i][0] = downRow[i];
+                    cube.down[0][i] = leftCol[2 - i];
+                    cube.left[i][2] = upRow[i];
+                }
+            }
+        }
+        
+        function doB(prime) {
+            rotateFace('back', !prime);
+            
+            const upRow = [cube.up[0][0], cube.up[0][1], cube.up[0][2]];
+            const rightCol = [cube.right[0][2], cube.right[1][2], cube.right[2][2]];
+            const downRow = [cube.down[2][0], cube.down[2][1], cube.down[2][2]];
+            const leftCol = [cube.left[0][0], cube.left[1][0], cube.left[2][0]];
+            
+            if (!prime) {
+                for (let i = 0; i < 3; i++) {
+                    cube.up[0][i] = rightCol[2 - i];
+                    cube.right[i][2] = downRow[i];
+                    cube.down[2][i] = leftCol[2 - i];
+                    cube.left[i][0] = upRow[i];
+                }
+            } else {
+                for (let i = 0; i < 3; i++) {
+                    cube.up[0][i] = leftCol[i];
+                    cube.left[i][0] = downRow[2 - i];
+                    cube.down[2][i] = rightCol[i];
+                    cube.right[i][2] = upRow[2 - i];
+                }
+            }
+        }
+        
+        function rotateFace(faceName, clockwise) {
+            const face = cube[faceName];
+            if (clockwise) {
+                // Clockwise rotation
+                const newFace = [
+                    [face[2][0], face[1][0], face[0][0]],
+                    [face[2][1], face[1][1], face[0][1]],
+                    [face[2][2], face[1][2], face[0][2]]
+                ];
+                for (let r = 0; r < 3; r++) {
+                    for (let c = 0; c < 3; c++) {
+                        face[r][c] = newFace[r][c];
+                    }
+                }
+            } else {
+                // Counter-clockwise rotation
+                const newFace = [
+                    [face[0][2], face[1][2], face[2][2]],
+                    [face[0][1], face[1][1], face[2][1]],
+                    [face[0][0], face[1][0], face[2][0]]
+                ];
+                for (let r = 0; r < 3; r++) {
+                    for (let c = 0; c < 3; c++) {
+                        face[r][c] = newFace[r][c];
+                    }
+                }
+            }
+        }
+        
+        function scramble() {
+            const moves = ['R', 'L', 'U', 'D', 'F', 'B'];
+            const count = 20 + Math.floor(Math.random() * 10);
+            
+            for (let i = 0; i < count; i++) {
+                const move = moves[Math.floor(Math.random() * moves.length)];
+                const prime = Math.random() > 0.5;
+                rotate(move, prime);
+            }
+            
+            statusEl.textContent = `Scrambled with ${count} moves!\nLast: ${moveHistory.slice(-10).join(' ')}`;
+        }
+        
+        function reset() {
+            cube = {
+                front: [['G','G','G'],['G','G','G'],['G','G','G']],
+                back:  [['B','B','B'],['B','B','B'],['B','B','B']],
+                right: [['R','R','R'],['R','R','R'],['R','R','R']],
+                left:  [['O','O','O'],['O','O','O'],['O','O','O']],
+                up:    [['W','W','W'],['W','W','W'],['W','W','W']],
+                down:  [['Y','Y','Y'],['Y','Y','Y'],['Y','Y','Y']]
+            };
+            moveHistory = [];
+            updateCubeDisplay();
+            statusEl.textContent = 'Reset! Cube is solved.';
+        }
+        
+        function toggleSpin() {
+            spinEnabled = !spinEnabled;
+            if (spinEnabled) {
+                cubeEl.classList.remove('paused');
+                statusEl.textContent += '\nAuto-rotation: ON';
+            } else {
+                cubeEl.classList.add('paused');
+                statusEl.textContent += '\nAuto-rotation: OFF';
+            }
+        }
+        
+        // Click on stickers to rotate the face
+        document.querySelectorAll('.sticker').forEach(sticker => {
+            sticker.addEventListener('click', (e) => {
+                const face = sticker.dataset.face;
+                rotate(face.toUpperCase());
+            });
+        });
+        
+        // Keyboard controls
+        document.addEventListener('keydown', (e) => {
+            const keyMap = {
+                'r': 'R', 'R': 'R',
+                'l': 'L', 'L': 'L',
+                'u': 'U', 'U': 'U',
+                'd': 'D', 'D': 'D',
+                'f': 'F', 'F': 'F',
+                'b': 'B', 'B': 'B',
+                "'": true, ';': true
+            };
+            
+            const key = e.key;
+            if (key in keyMap) {
+                e.preventDefault();
+                let prime = false;
+                let face = keyMap[key];
+                
+                // Check if next key is ' for prime
+                if (face === true) {
+                    // This is a prime indicator, ignore
+                    return;
+                }
+                
+                rotate(face);
+            }
+        });
+        
+        // Initialize
+        updateCubeDisplay();
+        
+        // Add some visual flair
+        setInterval(() => {
+            if (isSolved() && moveHistory.length > 0) {
+                statusEl.textContent += '\n✨ Cube is SOLVED! ✨';
+            }
+        }, 5000);
+    </script>
+</body>
+</html>
