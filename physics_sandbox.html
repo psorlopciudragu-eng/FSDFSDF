@@ -247,6 +247,7 @@
             down: false,
             rightDown: false,
             draggedObj: null,
+            isDragging: false,
             dragOffsetX: 0,
             dragOffsetY: 0,
             lastX: 0,
@@ -686,9 +687,10 @@
                     const obj = findObjectAt(mouse.x, mouse.y);
                     if (obj) {
                         mouse.draggedObj = obj;
+                        mouse.isDragging = true;
+                        obj.isDragged = true;
                         mouse.dragOffsetX = obj.x - mouse.x;
                         mouse.dragOffsetY = obj.y - mouse.y;
-                        obj.vx = 0; obj.vy = 0;
                     }
                 }
                 else if (mode === 'connect') {
@@ -772,8 +774,11 @@
                 // mouse.draggedObj.vx = mouse.vx * 0.3;
                 // mouse.draggedObj.vy = mouse.vy * 0.3;
                 }
+                const releasedObj = mouse.draggedObj;
                 mouse.down = false;
                 mouse.draggedObj = null;
+                mouse.isDragging = false;
+                if (releasedObj) releasedObj.isDragged = false;
             }
         });
         
@@ -801,7 +806,7 @@
         function update(dt) {
             // Update objects
             for (let obj of objects) {
-                obj.update(dt);
+                if (!obj.isDragged) obj.update(dt);
             }
             
             // Update springs
