@@ -748,10 +748,9 @@
             }
             
             if (mouse.down && mouse.draggedObj) {
-                // Set position directly for instant response
                 mouse.draggedObj.x = mouse.x + mouse.dragOffsetX;
                 mouse.draggedObj.y = mouse.y + mouse.dragOffsetY;
-                // Also set velocity for throwing on release
+                // Set velocity for throwing
                 mouse.draggedObj.vx = mouse.vx * 0.3;
                 mouse.draggedObj.vy = mouse.vy * 0.3;
             }
@@ -769,7 +768,9 @@
             if (e.button === 0) {
                 // Transfer mouse velocity to object on release
                 if (mouse.draggedObj && !mouse.draggedObj.fixed) {
-                    // Velocity already set in mousemove
+                // Velocity already set during drag
+                // mouse.draggedObj.vx = mouse.vx * 0.3;
+                // mouse.draggedObj.vy = mouse.vy * 0.3;
                 }
                 mouse.down = false;
                 mouse.draggedObj = null;
